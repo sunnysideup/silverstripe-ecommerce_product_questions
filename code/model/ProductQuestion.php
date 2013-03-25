@@ -34,6 +34,15 @@ class ProductQuestion extends DataObject {
 
 	/**
 	 * Standard SS variable.
+	 * Links questions to products
+	 */
+	static $summary_fields = array(
+		'InternalCode' => 'InternalCode',
+		'Question' => 'Question'
+	);
+
+	/**
+	 * Standard SS variable.
 	 */
 	public static $default_sort = "\"Question\" ASC";
 
@@ -59,6 +68,12 @@ class ProductQuestion extends DataObject {
 	 */
 	function getCMSFields() {
 		$fields = parent::getCMSFields();
+		$count = DB::query("SELECT COUNT(\"ID\") AS C  FROM \"Product\";")->val();
+		if($count > 0 && $count < 200) {
+			$products = DataObject::get("Product");
+			$productMap = $product->map("ID", "FullName");
+			$fields->replaceField("Products", new CheckboxSetField("Products", "Products", $productMap);
+		}
 		$this->extend('updateCMSFields', $fields);
 		return $fields;
 	}

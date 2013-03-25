@@ -11,9 +11,17 @@ class ProductQuestion extends DataObject {
 	 * Standard SS variable.
 	 */
 	public static $db = array(
+		'InternalCode' => 'Varchar(30)',
 		'Question' => 'Varchar(30)',
 		'Label' => 'Varchar(30)',
 		'Options' => 'Text'
+	);
+
+	/**
+	 * Standard SS variable.
+	 */
+	public static $casting = array(
+		'FullName' => 'Varchar'
 	);
 
 	/**
@@ -63,6 +71,7 @@ class ProductQuestion extends DataObject {
 	 */
 	function customFieldLabels(){
 		$newLabels = array(
+			"InternalCode" => _t("ProductQuestion.INTERNALCODE", "Code used to identify question (not snown to customers)"),
 			"Question" => _t("ProductQuestion.QUESTION", "Question (e.g. what configuration do you prefer?)"),
 			"Label" => _t("ProductQuestion.LABEL", "Label (e.g. Your selected configuration)"),
 			"Options" => _t("ProductQuestion.OPTIONS", "Predefined Options (leave blank for any option).  These must be comma separated (e.g. red, blue, yellow, orange)"),
@@ -84,6 +93,13 @@ class ProductQuestion extends DataObject {
 		return $labels;
 	}
 
+	public function FullName(){
+		return $this->getFullName();
+	}
+	public function getFullName(){
+		return $this->Question." (".$this->InternalCode.")";
+	}
+
 	public function getFieldForProduct(Product $product){
 		if($this->Options) {
 			$finalOptions = array();
@@ -92,16 +108,23 @@ class ProductQuestion extends DataObject {
 				$option = trim($option);
 				$finalOptions[Convert::raw2htmlatt($option)] = $option;
 			}
-			return new DropdownField($this->getFieldForProductName(), $this->Question, $finalOptions);
+			return new DropdownField($this->getFieldForProductName($product), $this->Question, $finalOptions);
 		}
 		else {
-			return new TextField($this->getFieldForProductName(), $this->Question);
+			return new TextField($this->getFieldForProductName($product), $this->Question);
 		}
 	}
 
 
 	public function getFieldForProductName(Product $product){
-		return "ProductQuestionsAnswer"; //"Question-".$product->ID."_"$this->ID;
+		return "ProductQuestions[".$this->ID."]";
+	}
+
+	function onBeforeWrite(){
+		parent::onBeforeWrite();
+		if(!$this->InternalCode) {
+			$this->InternalCode = $this->ID;
+		}
 	}
 
 }
@@ -120,8 +143,86 @@ class ProductQuestion_ProductDecorator extends DataObjectDecorator {
 		);
 	}
 
+
 	function updateCMSFields($fields) {
-		$fields->addFieldToTab("Root.Main.Questions" new CheckboxSetField("ProductQuestions", "Additional Questions"));
+		$productQuestions = DataObject::get("ProductQuestion");
+		if($productQuestions){
+			$productQuestionsArray = $productQuestions->map("ID", "FullName");
+			$fields->addFieldToTab("Root.Content.Details", new CheckboxSetField("ProductQuestions", "Additional Questions", $productQuestionsArray));
+		}
 	}
 
+	function ProductQuestionsAnswerFormLink($id = 0){
+		return $this->owner->Link("productquestionsanswerselect")."/".$id."/?BackURL=".urlencode(Controller::curr()->Link());
+	}
+
+}
+
+class ProductQuestion_ProductControllerDecorator extends Extension {
+
+	protected $productQuestionOrderItem = null;
+
+	function onAfterInit(){
+		$id = intval($this->owner->request->param("ID"));
+		if(!$id) {
+			$id = intval($this->owner->request->postVar("OrderItemID"));
+		}
+		if(!$id) {
+			$id = intval($this->owner->request->getVar("OrderItemID"));
+		}
+		if($id) {
+			$this->productQuestionOrderItem = DataObject::get_by_id("OrderItem", $id);
+		}
+		if(!$this->productQuestionOrderItem) {
+			user_error("NO this->productQuestionOrderItem specified");
+		}
+	}
+
+	function productquestionsanswerselect(){
+		return $this->owner->customise(
+			array(
+				"Title" => "Configure ".$this->productQuestionOrderItem->Title,
+				"Form" => $this->ProductQuestionsAnswerForm()
+			)
+		)->renderWith("productquestionsanswerselect") ;
+	}
+
+	function ProductQuestionsAnswerForm(){
+		if($this->productQuestionOrderItem) {
+			return $this->productQuestionOrderItem->ProductQuestionsAnswerForm($this->owner, $name = "ProductQuestionsAnswerForm");
+		}
+		user_error("NO OrderItem specified");
+	}
+
+	function addproductquestionsanswer($data, $form){
+		$data = Convert::raw2sql($data);
+		if($this->productQuestionOrderItem) {
+			if($this->productQuestionOrderItem->canEdit()) {
+				$this->productQuestionOrderItem->ProductQuestionsAnswer = "";
+				$productQuestionsArray = $data["ProductQuestions"];
+				if(is_array($productQuestionsArray) && count($productQuestionsArray)) {
+					foreach($productQuestionsArray as $productQuestionID => $productQuestionAnswer) {
+						$question = DataObject::get_by_id("ProductQuestion", intval($productQuestionID));
+						if($question) {
+							$this->productQuestionOrderItem->ProductQuestionsAnswer .= "
+								<span class=\"productQuestion\">
+									<strong class=\"productQuestionsLabel\">".$question->Label."</strong>:
+									<em class=\"productQuestionsAnswer\">".$productQuestionAnswer."</em>
+								</span>";
+						}
+					}
+				}
+				$this->productQuestionOrderItem->JSONAnswers = Convert::raw2json($data);
+				$this->productQuestionOrderItem->write();
+			}
+		}
+		if(isset($data["BackURL"])){
+			Director::redirect($data["BackURL"]);
+
+		}
+		else {
+			Director::redirectBack();
+		}
+		return;
+	}
 }

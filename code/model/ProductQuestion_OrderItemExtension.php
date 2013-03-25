@@ -32,10 +32,6 @@ class ProductQuestion_OrderItemExtension extends DataObjectDecorator {
 		return $this->owner->ProductQuestionsAnswerFormLink();
 	}
 
-	function updateTableSubTitle($value) {
-		return $this->updateTableTitle($value);
-	}
-
 	/**
 	 *
 	 * @return String

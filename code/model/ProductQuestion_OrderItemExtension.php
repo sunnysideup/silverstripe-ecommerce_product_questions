@@ -83,7 +83,7 @@ class ProductQuestion_OrderItemExtension extends DataObjectDecorator {
 			self::$product_question_product = $this->owner->Buyable();
 			if(self::$product_question_product) {
 				if(self::$product_question_product instanceOF ProductVariation) {
-					self::$product_question_product = self::$$product_question_product->Product();
+					self::$product_question_product = self::$product_question_product->Product();
 				}
 			}
 		}

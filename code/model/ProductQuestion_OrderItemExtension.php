@@ -87,7 +87,7 @@ class ProductQuestion_OrderItemExtension extends DataObjectDecorator {
 				}
 			}
 		}
-		return self::$$product_question_product;
+		return self::$product_question_product;
 	}
 
 	/**

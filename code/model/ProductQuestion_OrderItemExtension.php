@@ -79,11 +79,11 @@ class ProductQuestion_OrderItemExtension extends DataObjectDecorator {
 	protected static $product_question_product = null;
 
 	protected function productQuestionProduct(){
-		if(self::$$product_question_product === null) {
-			self::$$product_question_product = $this->owner->Buyable();
-			if(self::$$product_question_product) {
-				if(self::$$product_question_product instanceOF ProductVariation) {
-					self::$$product_question_product = self::$$product_question_product->Product();
+		if(self::$product_question_product === null) {
+			self::$product_question_product = $this->owner->Buyable();
+			if(self::$product_question_product) {
+				if(self::$product_question_product instanceOF ProductVariation) {
+					self::$product_question_product = self::$$product_question_product->Product();
 				}
 			}
 		}

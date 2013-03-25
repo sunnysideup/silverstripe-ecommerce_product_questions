@@ -177,23 +177,10 @@ class ProductQuestion_ProductControllerDecorator extends Extension {
 
 	protected $productQuestionOrderItem = null;
 
-	function onAfterInit(){
-		$id = intval($this->owner->request->param("ID"));
-		if(!$id) {
-			$id = intval($this->owner->request->postVar("OrderItemID"));
-		}
-		if(!$id) {
-			$id = intval($this->owner->request->getVar("OrderItemID"));
-		}
-		if($id) {
-			$this->productQuestionOrderItem = DataObject::get_by_id("OrderItem", $id);
-		}
-		if(!$this->productQuestionOrderItem) {
+	function productquestionsanswerselect(){
+		if(!$this->getProductQuestionOrderItem()) {
 			user_error("NO this->productQuestionOrderItem specified");
 		}
-	}
-
-	function productquestionsanswerselect(){
 		return $this->owner->customise(
 			array(
 				"Title" => "Configure ".$this->productQuestionOrderItem->Title,
@@ -203,13 +190,18 @@ class ProductQuestion_ProductControllerDecorator extends Extension {
 	}
 
 	function ProductQuestionsAnswerForm(){
+		if(!$this->getProductQuestionOrderItem()) {
+			user_error("NO this->productQuestionOrderItem specified");
+		}
 		if($this->productQuestionOrderItem) {
 			return $this->productQuestionOrderItem->ProductQuestionsAnswerForm($this->owner, $name = "ProductQuestionsAnswerForm");
 		}
-		user_error("NO OrderItem specified");
 	}
 
 	function addproductquestionsanswer($data, $form){
+		if(!$this->getProductQuestionOrderItem()) {
+			user_error("NO this->productQuestionOrderItem specified");
+		}
 		$data = Convert::raw2sql($data);
 		if($this->productQuestionOrderItem) {
 			if($this->productQuestionOrderItem->canEdit()) {
@@ -240,4 +232,19 @@ class ProductQuestion_ProductControllerDecorator extends Extension {
 		}
 		return;
 	}
+
+	protected function getProductQuestionOrderItem(){
+		$id = intval($this->owner->request->param("ID"));
+		if(!$id) {
+			$id = intval($this->owner->request->postVar("OrderItemID"));
+		}
+		if(!$id) {
+			$id = intval($this->owner->request->getVar("OrderItemID"));
+		}
+		if($id) {
+			$this->productQuestionOrderItem = DataObject::get_by_id("OrderItem", $id);
+		}
+		return $this->productQuestionOrderItem;
+	}
+
 }

@@ -183,7 +183,7 @@ class ProductQuestion_ProductControllerDecorator extends Extension {
 		}
 		return $this->owner->customise(
 			array(
-				"Title" => "Configure ".$this->productQuestionOrderItem->getTableTitle(),
+				"Title" => $this->productQuestionOrderItem->getTableTitle(),
 				"Form" => $this->ProductQuestionsAnswerForm()
 			)
 		)->renderWith("productquestionsanswerselect") ;

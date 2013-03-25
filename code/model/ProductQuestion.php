@@ -68,11 +68,11 @@ class ProductQuestion extends DataObject {
 	 */
 	function getCMSFields() {
 		$fields = parent::getCMSFields();
-		$count = DB::query("SELECT COUNT(\"ID\") AS C  FROM \"Product\";")->val();
+		$count = DB::query("SELECT COUNT(\"ID\") AS C  FROM \"Product\";")->value();
 		if($count > 0 && $count < 200) {
 			$products = DataObject::get("Product");
-			$productMap = $product->map("ID", "FullName");
-			$fields->replaceField("Products", new CheckboxSetField("Products", "Products", $productMap);
+			$productMap = $products->map("ID", "FullName");
+			$fields->replaceField("Products", new CheckboxSetField("Products", "Products", $productMap));
 		}
 		$this->extend('updateCMSFields', $fields);
 		return $fields;

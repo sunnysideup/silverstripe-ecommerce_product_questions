@@ -42,7 +42,7 @@ class ProductQuestion_OrderItemExtension extends DataObjectDecorator {
 	 */
 	function ProductQuestionsAnswerFormLink(){
 		if($this->owner->HasProductQuestions()) {
-			$buyable = $this->owner->Buyable();
+			$buyable = $this->productQuestionProduct();
 			if($buyable) {
 				return $buyable->ProductQuestionsAnswerFormLink($this->owner->ID);
 			}
@@ -74,13 +74,25 @@ class ProductQuestion_OrderItemExtension extends DataObjectDecorator {
 	 * @return DataObjectSet | Null
 	 */
 	function ProductQuestions(){
-		$buyable = $this->owner->Buyable();
-		if($buyable) {
-			return $buyable->owner->ProductQuestions();
+		if($buyable = $this->productQuestionProduct()) {
+			return $buyable->ProductQuestions();
 		}
-		return false;
+		return null;
 	}
 
+	protected static $product_question_product = null;
+
+	protected function productQuestionProduct(){
+		if(self::$$product_question_product === null) {
+			self::$$product_question_product = $this->owner->Buyable();
+			if(self::$$product_question_product) {
+				if(self::$$product_question_product instanceOF ProductVariation) {
+					self::$$product_question_product = self::$$product_question_product->Product();
+				}
+			}
+		}
+		return self::$$product_question_product;
+	}
 
 	/**
 	 *
@@ -88,7 +100,7 @@ class ProductQuestion_OrderItemExtension extends DataObjectDecorator {
 	 */
 	function ProductQuestionsAnswerForm($controller, $name = "productquestionsanswerselect") {
 		$productQuestions = $this->owner->ProductQuestions();
-		$buyable = $this->owner->Buyable();
+		$buyable = $this->productQuestionProduct();
 		$backURL = Session::get("BackURL");
 		if($backURL || empty($_GET["BackURL"])) {
 			//do nothing

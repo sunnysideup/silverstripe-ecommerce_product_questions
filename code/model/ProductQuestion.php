@@ -175,6 +175,16 @@ class ProductQuestion_ProductDecorator extends DataObjectDecorator {
 
 class ProductQuestion_ProductControllerDecorator extends Extension {
 
+
+	/**
+	 * we need this here to
+	 * because otherwise the extension will not work
+	 */
+	static $allowed_actions = array(
+		"ProductQuestionsAnswerForm",
+		"productquestionsanswerselect"
+	);
+
 	protected $productQuestionOrderItem = null;
 
 	function productquestionsanswerselect(){

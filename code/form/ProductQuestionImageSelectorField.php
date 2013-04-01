@@ -74,10 +74,9 @@ class ProductQuestionImageSelectorField extends OptionsetField {
 			$id = 0;
 		}
 		return "
-		<ul id=\"$id\" class=\"optionset {$this->extraClass()}\">
-			".$this->Title()."
-		\n$options
-		</ul>\n";
+			<ul id=\"$id\" class=\"optionset {$this->extraClass()}\">
+			\n$options
+			</ul>\n";
 	}
 
 	protected function createObjects(){

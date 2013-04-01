@@ -99,7 +99,7 @@ class ProductQuestion extends DataObject {
 				);
 			}
 			if($this->FolderID) {
-				$imagesInFolder = DataObject::get("Image", "\ParentID\" = ".$this->FolderID);
+				$imagesInFolder = DataObject::get("Image", "\"ParentID\" = ".$this->FolderID);
 				if($imagesInFolder) {
 					$imagesInFolderArray =$imagesInFolder->map("ID", "Name");
 					$fields->addFieldToTab("Root.Main", new ReadonlyField("ImagesInFolder", "Images in folder", implode(",", $imagesInFolderArray)));

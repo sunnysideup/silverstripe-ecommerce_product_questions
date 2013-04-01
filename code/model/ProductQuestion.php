@@ -87,7 +87,7 @@ class ProductQuestion extends DataObject {
 		}
 		$fields->addFieldToTab("Root.Main", new HeaderField("Images", _t("ProductQuestion.IMAGES", "Images"), 2), "HasImages");
 		if($this->HasImages) {
-			$folders = DataObject::get("Folder");
+			$folders = DataObject::get("Folder", "\"Sort\"");
 			if($folders) {
 				$folderMap = $folders->map("ID", "Title");
 				$folders = null;
@@ -97,6 +97,13 @@ class ProductQuestion extends DataObject {
 					"Folder",
 					new TreeDropdownField("FolderID", _t("ProductQuestion.FOLDER", "Folder"), "Folder")
 				);
+			}
+			if($this->FolderID) {
+				$imagesInFolder = DataObject::get("Image", "\ParentID\" = ".$this->FolderID);
+				if($imagesInFolder) {
+					$imagesInFolderArray =$imagesInFolder->map("ID", "Name");
+					$fields->addFieldToTab("Root.Main", new ReadonlyField("ImagesInFolder", "Images in folder", implode(",", $imagesInFolderArray)));
+				}
 			}
 		}
 		else {

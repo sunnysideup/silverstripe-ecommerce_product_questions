@@ -102,12 +102,12 @@ class ProductQuestion extends DataObject {
 				$imagesInFolder = DataObject::get("Image", "\"ParentID\" = ".$this->FolderID);
 				if($imagesInFolder) {
 					$imagesInFolderArray =$imagesInFolder->map("ID", "Name");
-					$imagesInFolderField = new ReadonlyField("ImagesInFolder", "Images in folder", implode("<br />", $imagesInFolderArray));
+					$imagesInFolderField = new ReadonlyField("ImagesInFolder", _t("ProductQuestion.NO_IMAGES", "Images in folder"), implode("<br />", $imagesInFolderArray));
 					$imagesInFolderField->dontEscape = true;
 					$fields->addFieldToTab("Root.Main", $imagesInFolderField);
 				}
 				else {
-					$imagesInFolderField = new ReadonlyField("ImagesInFolder", "Images in folder", "There are no images in this folder.");
+					$imagesInFolderField = new ReadonlyField("ImagesInFolder", "Images in folder", _t("ProductQuestion.NO_IMAGES", "There are no images in this folder"));
 					$fields->addFieldToTab("Root.Main", $imagesInFolderField);
 				}
 			}

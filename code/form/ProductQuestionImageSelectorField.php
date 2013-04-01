@@ -70,6 +70,9 @@ class ProductQuestionImageSelectorField extends OptionsetField {
 			}
 			$id = $this->id();
 		}
+		if(empty($id)) {
+			$id = 0;
+		}
 		return "
 		<ul id=\"$id\" class=\"optionset {$this->extraClass()}\">
 			".$this->Title()."

@@ -3,7 +3,7 @@
 /**
  *
  * @package ecommerce
- * @subpackage buyables
+ * @subpackage ProductQuestion
  */
 class ProductQuestion extends DataObject {
 
@@ -14,7 +14,8 @@ class ProductQuestion extends DataObject {
 		'InternalCode' => 'Varchar(30)',
 		'Question' => 'Varchar(30)',
 		'Label' => 'Varchar(30)',
-		'Options' => 'Text'
+		'Options' => 'Text',
+		"HasImages" => "Boolean"
 	);
 
 	/**
@@ -30,6 +31,14 @@ class ProductQuestion extends DataObject {
 	 */
 	static $many_many = array(
 		'Products' => 'Product'
+	);
+
+	/**
+	 * Standard SS variable.
+	 * Links to folder for images
+	 */
+	static $has_one = array(
+		'Folder' => 'Folder'
 	);
 
 	/**
@@ -68,11 +77,34 @@ class ProductQuestion extends DataObject {
 	 */
 	function getCMSFields() {
 		$fields = parent::getCMSFields();
-		$count = DB::query("SELECT COUNT(\"ID\") AS C  FROM \"Product\";")->value();
-		if($count > 0 && $count < 200) {
+		$productCount = DB::query("SELECT COUNT(\"ID\") AS C  FROM \"Product\";")->value();
+		if($productCount > 0 && $productCount < 500) {
 			$products = DataObject::get("Product");
-			$productMap = $products->map("ID", "FullName");
-			$fields->replaceField("Products", new CheckboxSetField("Products", "Products", $productMap));
+			if($products) {
+				$productMap = $products->map("ID", "FullName");
+				$fields->replaceField("Products", new CheckboxSetField("Products", _t("ProductQuestion.PRODUCTS", "Products"), $productMap));
+			}
+		}
+		$fields->addFieldToTab("Root.Main", new HeaderField("Images", _t("ProductQuestion.IMAGES", "Images"), 2), "HasImages");
+		if($this->HasImages) {
+			$folders = DataObject::get("Folder");
+			if($folders) {
+				$folderMap = $folders->map("ID", "Title");
+				$folders = null;
+				$labelArray = $this->customFieldLabels();
+				$labelArray = $labelArray["FolderID"];
+				$fields->replaceField(
+					"Folder",
+					new TreeDropdownField("FolderID", _t("ProductQuestion.FOLDER", "Folder"), "Folder")
+				);
+			}
+		}
+		else {
+			$fields->removeByName("Folder");
+		}
+		if($products) {
+			$randomProduct = $products->First();
+			$fields->addFieldToTab("Root.Example", $this->getFieldForProduct($randomProduct));
 		}
 		$this->extend('updateCMSFields', $fields);
 		return $fields;
@@ -90,6 +122,8 @@ class ProductQuestion extends DataObject {
 			"Question" => _t("ProductQuestion.QUESTION", "Question (e.g. what configuration do you prefer?)"),
 			"Label" => _t("ProductQuestion.LABEL", "Label (e.g. Your selected configuration)"),
 			"Options" => _t("ProductQuestion.OPTIONS", "Predefined Options (leave blank for any option).  These must be comma separated (e.g. red, blue, yellow, orange)"),
+			"HasImages" => _t("ProductQuestion.HAS_IMAGES", "Has Images? .... Select this to link each option to an image (e.g. useful if you have colour swatches). Once selected and reloaded you will be able to select a folder from where to select the images"),
+			"FolderID" => _t("ProductQuestion.FOLDER_ID", "Select the folder in which the images live.  The images need to have the exact same file name as the options listed.  For example, if one of your options is 'red' then there should be a file in your folder called 'red.png' or 'red.jpg' or 'red.gif', the following filenames would not work: 'Red.png', 'red1.jpg', 'RED.gif', etc...  "),
 		);
 		return $newLabels;
 	}
@@ -108,22 +142,34 @@ class ProductQuestion extends DataObject {
 		return $labels;
 	}
 
-	public function FullName(){
-		return $this->getFullName();
-	}
+	/**
+	 * casted variable
+	 * @return String
+	 */
+	public function FullName(){return $this->getFullName();}
 	public function getFullName(){
 		return $this->Question." (".$this->InternalCode.")";
 	}
 
+	/**
+	 *
+	 * @return FormField
+	 */
 	public function getFieldForProduct(Product $product){
 		if($this->Options) {
+			//if HasImages?
 			$finalOptions = array();
 			$optionArray = explode(",", $this->Options);
 			foreach($optionArray as $option) {
 				$option = trim($option);
 				$finalOptions[Convert::raw2htmlatt($option)] = $option;
 			}
-			return new DropdownField($this->getFieldForProductName($product), $this->Question, $finalOptions);
+			if($this->HasImages) {
+				return new ProductQuestionImageSelectorField($this->getFieldForProductName($product), $this->Question, $finalOptions, null, $this->FolderID);
+			}
+			else {
+				return new DropdownField($this->getFieldForProductName($product), $this->Question, $finalOptions);
+			}
 		}
 		else {
 			return new TextField($this->getFieldForProductName($product), $this->Question);
@@ -138,12 +184,23 @@ class ProductQuestion extends DataObject {
 	function onBeforeWrite(){
 		parent::onBeforeWrite();
 		if(!$this->InternalCode) {
-			$this->InternalCode = $this->ID;
+			$this->InternalCode = $this->Label;
+		}
+		if(!$this->HasImages) {
+			$this->FolderID = 0;
 		}
 	}
 
 }
 
+
+
+/**
+ * adds functionality to Products
+ *
+ *
+ *
+ */
 class ProductQuestion_ProductDecorator extends DataObjectDecorator {
 
 	/**
@@ -173,6 +230,14 @@ class ProductQuestion_ProductDecorator extends DataObjectDecorator {
 
 }
 
+
+
+/**
+ * adds functionality to ProductControllers
+ *
+ *
+ *
+ */
 class ProductQuestion_ProductControllerDecorator extends Extension {
 
 
@@ -185,12 +250,18 @@ class ProductQuestion_ProductControllerDecorator extends Extension {
 		"productquestionsanswerselect"
 	);
 
+	/**
+	 * Stores the related OrderItem
+	 * @var OrderItem
+	 */
 	protected $productQuestionOrderItem = null;
 
+	/**
+	 * renders a form with the product questions
+	 * @return String (HTML)
+	 */
 	function productquestionsanswerselect(){
-		if(!$this->getProductQuestionOrderItem()) {
-			user_error("NO this->productQuestionOrderItem specified");
-		}
+		$this->getProductQuestionOrderItem();
 		return $this->owner->customise(
 			array(
 				"Title" => $this->productQuestionOrderItem->getTableTitle(),
@@ -199,50 +270,63 @@ class ProductQuestion_ProductControllerDecorator extends Extension {
 		)->renderWith("productquestionsanswerselect") ;
 	}
 
+	/**
+	 * returns a form with questions
+	 * @return Form
+	 */
 	function ProductQuestionsAnswerForm(){
-		if(!$this->getProductQuestionOrderItem()) {
-			user_error("NO this->productQuestionOrderItem specified");
-		}
+		$this->getProductQuestionOrderItem();
 		if($this->productQuestionOrderItem) {
 			return $this->productQuestionOrderItem->ProductQuestionsAnswerForm($this->owner, $name = "ProductQuestionsAnswerForm");
 		}
 	}
 
-	function addproductquestionsanswer($data, $form){
-		if(!$this->getProductQuestionOrderItem()) {
-			user_error("NO this->productQuestionOrderItem specified");
+	/**
+	 * returns the fields from the form
+	 * @return FieldSet
+	 */
+	function ProductQuestionsAnswerFormFields(){
+		$fieldSet = new FieldSet();
+		$product = $this->owner->dataRecord;
+		$productQuestions = $product->ProductQuestions();
+		if($productQuestions) {
+			foreach($productQuestions as $productQuestion) {
+				$fieldSet->push($productQuestion->getFieldForProduct($product));
+			}
 		}
+		return $fieldSet;
+	}
+
+	/**
+	 * processes a form and
+	 * adds product question answer(s) to order item.
+	 * The answers are added as HTML and JSON
+	 * and redirects back to the previous page or a set BackURL
+	 * (set in the form data)
+	 * @param Array $data - form data
+	 * @param Form form - data from the form
+	 */
+	function addproductquestionsanswer($data, $form){
+		$this->getProductQuestionOrderItem();
 		$data = Convert::raw2sql($data);
 		if($this->productQuestionOrderItem) {
-			if($this->productQuestionOrderItem->canEdit()) {
-				$this->productQuestionOrderItem->ProductQuestionsAnswer = "";
-				$productQuestionsArray = $data["ProductQuestions"];
-				if(is_array($productQuestionsArray) && count($productQuestionsArray)) {
-					foreach($productQuestionsArray as $productQuestionID => $productQuestionAnswer) {
-						$question = DataObject::get_by_id("ProductQuestion", intval($productQuestionID));
-						if($question) {
-							$this->productQuestionOrderItem->ProductQuestionsAnswer .= "
-								<span class=\"productQuestion\">
-									<strong class=\"productQuestionsLabel\">".$question->Label."</strong>:
-									<em class=\"productQuestionsAnswer\">".$productQuestionAnswer."</em>
-								</span>";
-						}
-					}
-				}
-				$this->productQuestionOrderItem->JSONAnswers = Convert::raw2json($data);
-				$this->productQuestionOrderItem->write();
-			}
+			$this->productQuestionOrderItem->updateOrderItemWithProductAnswers(
+				$answers = $data["ProductQuestions"],
+				$write = true
+			);
 		}
 		if(isset($data["BackURL"])){
 			Director::redirect($data["BackURL"]);
-
 		}
 		else {
 			Director::redirectBack();
 		}
-		return;
 	}
 
+	/**
+	 * retrieves order item from post / get variables.
+	 * @return OrderItem | Null
+	 */
 	protected function getProductQuestionOrderItem(){
 		$id = intval($this->owner->request->param("ID"));
 		if(!$id) {
@@ -253,6 +337,9 @@ class ProductQuestion_ProductControllerDecorator extends Extension {
 		}
 		if($id) {
 			$this->productQuestionOrderItem = DataObject::get_by_id("OrderItem", $id);
+		}
+		if(!$this->productQuestionOrderItem) {
+			user_error("NO this->productQuestionOrderItem specified");
 		}
 		return $this->productQuestionOrderItem;
 	}

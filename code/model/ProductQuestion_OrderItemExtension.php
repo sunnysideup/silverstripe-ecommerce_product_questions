@@ -47,7 +47,7 @@ class ProductQuestion_OrderItemExtension extends DataObjectDecorator {
 	}
 
 	/**
-	 *
+	 *returns the link to edit the products.
 	 * @return String
 	 */
 	function ProductQuestionsAnswerFormLink(){
@@ -143,7 +143,7 @@ class ProductQuestion_OrderItemExtension extends DataObjectDecorator {
 			);
 			$validator = new RequiredFields($requiredfields);
 			$form = new Form($controller, $name,$fields,$actions,$validator);
-			Requirements::themedCSS("ProductQuestions");
+			Requirements::themedCSS("Cart");
 			return $form;
 		}
 	}

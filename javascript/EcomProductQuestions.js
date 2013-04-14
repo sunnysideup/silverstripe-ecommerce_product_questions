@@ -15,9 +15,7 @@ EcomProductQuantity = {
 	selectVariationSelector: '.configureLink',
 
 	colorboxDialogOptions: {
-		onCleanup: function (event) {
-			document.location.reload();
-		}
+		iframe: false
 	},
 
 

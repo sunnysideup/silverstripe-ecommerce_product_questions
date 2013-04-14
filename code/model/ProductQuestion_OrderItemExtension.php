@@ -133,8 +133,13 @@ class ProductQuestion_OrderItemExtension extends DataObjectDecorator {
 				new HiddenField("OrderItemID", "OrderItemID", $this->owner->ID),
 				new HiddenField("BackURL", "BackURL", $backURL)
 			);
+			$values = array();
+			if($this->owner->JSONAnswers) {
+				$values = @Convert::json2array($this->owner->JSONAnswers);
+			}
 			foreach($productQuestions as $productQuestion) {
-				$fields->push($productQuestion->getFieldForProduct($buyable)); //TODO: perhaps use a dropdown instead (elimiates need to use keyboard)
+				$value = empty($values[$productQuestion->ID]) ? null : $values[$productQuestion->ID];
+				$fields->push($productQuestion->getFieldForProduct($buyable, $value)); //TODO: perhaps use a dropdown instead (elimiates need to use keyboard)
 			}
 			$actions = new FieldSet(
 				array(

@@ -168,7 +168,7 @@ class ProductQuestion extends DataObject {
 	 *
 	 * @return FormField
 	 */
-	public function getFieldForProduct(Product $product){
+	public function getFieldForProduct(Product $product, $value = null){
 		if($this->Options) {
 			//if HasImages?
 			$finalOptions = array();
@@ -178,14 +178,14 @@ class ProductQuestion extends DataObject {
 				$finalOptions[Convert::raw2htmlatt($option)] = $option;
 			}
 			if($this->HasImages) {
-				return new ProductQuestionImageSelectorField($this->getFieldForProductName($product), $this->Question, $finalOptions, null, $this->FolderID);
+				return new ProductQuestionImageSelectorField($this->getFieldForProductName($product), $this->Question, $finalOptions, $value, $this->FolderID);
 			}
 			else {
-				return new DropdownField($this->getFieldForProductName($product), $this->Question, $finalOptions);
+				return new DropdownField($this->getFieldForProductName($product), $this->Question, $finalOptions, $value);
 			}
 		}
 		else {
-			return new TextField($this->getFieldForProductName($product), $this->Question);
+			return new TextField($this->getFieldForProductName($product), $this->Question, $value);
 		}
 	}
 

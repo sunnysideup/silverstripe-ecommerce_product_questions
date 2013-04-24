@@ -43,7 +43,12 @@ class ProductQuestion_OrderItemExtension extends DataObjectDecorator {
 	 */
 	function ConfigureLink() {
 		Requirements::javascript("ecommerce_product_questions/javascript/EcomProductQuestions.js");
-		return $this->owner->ProductQuestionsAnswerFormLink();
+		if($this->owner->Order()->IsSubmitted()) {
+			return "";
+		}
+		else {
+			return $this->owner->ProductQuestionsAnswerFormLink();
+		}
 	}
 
 	/**

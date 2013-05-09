@@ -137,7 +137,7 @@ class ProductQuestion extends DataObject {
 							foreach($options as $option) {
 								$fileNameArray = self::create_file_array_from_option($option);
 								foreach($fileNameArray as $fileName) {
-									if(in_array($fileName, $imagesInFolderArray) {
+									if(in_array($fileName, $imagesInFolderArray)) {
 										$matchesInFolderArray[$fileName] = $fileName;
 									}
 								}

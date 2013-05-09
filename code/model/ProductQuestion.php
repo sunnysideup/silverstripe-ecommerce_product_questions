@@ -129,9 +129,11 @@ class ProductQuestion extends DataObject {
 					$options = explode(",", $this->Options);
 					$imagesInFolderField = new ReadonlyField("ImagesInFolder", _t("ProductQuestion.NO_IMAGES", "Images in folder"), implode("<br />", $imagesInFolderArray));
 					$imagesInFolderField->dontEscape = true;
-					$fields->addFieldToTab("Root.Main", $imagesInFolderField);
+					$fields->addFieldToTab("Root.Images", $imagesInFolderField);
 					//matches
 					if($this->exists()) {
+						$matchesInFolderArray = array();
+						$nonMatchesInFolderArray = array();
 						$options = explode(",", $this->Options);
 						if(count($options)) {
 							foreach($options as $option) {
@@ -140,12 +142,18 @@ class ProductQuestion extends DataObject {
 									if(in_array($fileName, $imagesInFolderArray)) {
 										$matchesInFolderArray[$fileName] = $fileName;
 									}
+									else {
+										$nonMatchesInFolderArray[$fileName] = $fileName;
+									}
 								}
 							}
 						}
-						$matchesInFolderField = new ReadonlyField("MatchesInFolder", _t("ProductQuestion.NO_IMAGES", "Matches in folder"), implode("<br />", $matchesInFolderArray));
+						$matchesInFolderField = new ReadonlyField("MatchesInFolder", _t("ProductQuestion.MATCHES_IN_FOLDER", "Matches in folder"), implode("<br />", $matchesInFolderArray));
 						$matchesInFolderField->dontEscape = true;
-						$fields->addFieldToTab("Root.Main", $matchesInFolderField);
+						$fields->addFieldToTab("Root.Images", $matchesInFolderField);
+						$nonMatchesInFolderField = new ReadonlyField("NonMatchesInFolder", _t("ProductQuestion.NON_MATCHES_IN_FOLDER", "NON Matches in folder"), implode("<br />", $nonMatchesInFolderArray));
+						$nonMatchesInFolderField->dontEscape = true;
+						$fields->addFieldToTab("Root.Images", $nonMatchesInFolderField);
 					}
 				}
 				else {

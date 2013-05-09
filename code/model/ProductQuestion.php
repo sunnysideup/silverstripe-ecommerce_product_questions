@@ -81,7 +81,7 @@ class ProductQuestion extends DataObject {
 	 */
 	public static function create_file_array_from_option($option) {
 		$option = str_replace(" ", "-", $option);
-		$option = preg_replace("/[^A-Za-z0-9]\-/", '', $option);
+		$option = preg_replace("/[^A-Za-z0-9]/", '', $option);
 		$imageOptions = array(
 			$option.".png",
 			$option.".PNG",

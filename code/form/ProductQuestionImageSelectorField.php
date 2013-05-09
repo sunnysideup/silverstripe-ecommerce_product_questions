@@ -83,8 +83,8 @@ class ProductQuestionImageSelectorField extends OptionsetField {
 		$this->objects = new DataObjectSet();
 		if($this->options && is_array($this->options) && count($this->options)) {
 			foreach($this->options as $option) {
-				$option = ProductQuestion::create_file_array_from_option($option);
-				$imageOptions = DataObject::get_one("Image", "\"ParentID\" = ".$this->folderID. " AND \"Name\" IN('".implode("','", $imageOptions)."')");
+				$imageOptions = ProductQuestion::create_file_array_from_option($option);
+				$image = DataObject::get_one("Image", "\"ParentID\" = ".$this->folderID. " AND \"Name\" IN('".implode("','", $imageOptions)."')");
 				if($image) {
 					$image->Key = $option;
 					$image->Value = $option;

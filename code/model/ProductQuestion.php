@@ -127,9 +127,6 @@ class ProductQuestion extends DataObject {
 				if($imagesInFolder) {
 					$imagesInFolderArray = $imagesInFolder->map("ID", "Name");
 					$options = explode(",", $this->Options);
-					if(count($options)) {
-						self::create_file_array_from_option
-					}
 					$imagesInFolderField = new ReadonlyField("ImagesInFolder", _t("ProductQuestion.NO_IMAGES", "Images in folder"), implode("<br />", $imagesInFolderArray));
 					$imagesInFolderField->dontEscape = true;
 					$fields->addFieldToTab("Root.Main", $imagesInFolderField);

@@ -144,7 +144,7 @@ class ProductQuestion extends DataObject {
 									}
 								}
 								if(!isset($matchesInFolderArray[$option])) {
-									$nonMatchesInFolderArray[$option] = "<strong>"$option."</strong>: ".implode(",", $fileNameArray);
+									$nonMatchesInFolderArray[$option] = "<strong>".$option."</strong>: ".implode(",", $fileNameArray);
 								}
 							}
 						}

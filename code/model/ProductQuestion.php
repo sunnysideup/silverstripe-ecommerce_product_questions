@@ -72,6 +72,30 @@ class ProductQuestion extends DataObject {
 		}
 
 	/**
+	 * turns an option into potential file names
+	 * e.g. red
+	 * returns
+	 * red.jpg, red.png, red.gif
+	 * @param String $option
+	 * @return Array
+	 */
+	public static function create_file_array_from_option($option) {
+		$option = str_replace(" ", "-", $option);
+		$option = preg_replace("/[^A-Za-z0-9]/", '', $option);
+		$imageOptions = array(
+			$option.".png",
+			$option.".PNG",
+			$option.".gif",
+			$option.".GIF" ,
+			$option.".jpg",
+			$option.".JPG",
+			$option.".jpeg",
+			$option.".JPEG"
+		);
+		return $imageOptions;
+	}
+
+	/**
 	 * Standard SS method
 	 * @return FieldSet
 	 */
@@ -101,10 +125,31 @@ class ProductQuestion extends DataObject {
 			if($this->FolderID) {
 				$imagesInFolder = DataObject::get("Image", "\"ParentID\" = ".$this->FolderID);
 				if($imagesInFolder) {
-					$imagesInFolderArray =$imagesInFolder->map("ID", "Name");
+					$imagesInFolderArray = $imagesInFolder->map("ID", "Name");
+					$options = explode(",", $this->Options);
+					if(count($options)) {
+						self::create_file_array_from_option
+					}
 					$imagesInFolderField = new ReadonlyField("ImagesInFolder", _t("ProductQuestion.NO_IMAGES", "Images in folder"), implode("<br />", $imagesInFolderArray));
 					$imagesInFolderField->dontEscape = true;
 					$fields->addFieldToTab("Root.Main", $imagesInFolderField);
+					//matches
+					if($this->exists()) {
+						$options = explode(",", $this->Options);
+						if(count($options)) {
+							foreach($options as $option) {
+								$fileNameArray = self::create_file_array_from_option($option);
+								foreach($fileNameArray as $fileName) {
+									if(in_array($fileName, $imagesInFolderArray) {
+										$matchesInFolderArray[$fileName] = $fileName;
+									}
+								}
+							}
+						}
+						$matchesInFolderField = new ReadonlyField("MatchesInFolder", _t("ProductQuestion.NO_IMAGES", "Matches in folder"), implode("<br />", $matchesInFolderArray));
+						$matchesInFolderField->dontEscape = true;
+						$fields->addFieldToTab("Root.Main", $matchesInFolderField);
+					}
 				}
 				else {
 					$imagesInFolderField = new ReadonlyField("ImagesInFolder", "Images in folder", _t("ProductQuestion.NO_IMAGES", "There are no images in this folder"));

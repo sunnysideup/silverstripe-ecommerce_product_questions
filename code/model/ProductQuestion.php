@@ -140,11 +140,11 @@ class ProductQuestion extends DataObject {
 								$fileNameArray = self::create_file_array_from_option($option);
 								foreach($fileNameArray as $fileName) {
 									if(in_array($fileName, $imagesInFolderArray)) {
-										$matchesInFolderArray[$fileName] = $fileName;
+										$matchesInFolderArray[$option] = $fileName;
 									}
-									else {
-										$nonMatchesInFolderArray[$fileName] = $fileName;
-									}
+								}
+								if(!isset($matchesInFolderArray[$option])) {
+									$nonMatchesInFolderArray[$option] = "<strong>"$option."</strong>: ".implode(",", $fileNameArray);
 								}
 							}
 						}

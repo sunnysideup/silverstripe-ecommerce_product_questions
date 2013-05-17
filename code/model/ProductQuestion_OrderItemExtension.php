@@ -21,7 +21,8 @@ class ProductQuestion_OrderItemExtension extends DataObjectDecorator {
 			),
 			'casting' => array(
 				'ProductQuestionsAnswerNOHTML' => 'Text',
-				'ConfigureLink' => 'HTMLText'
+				'ConfigureLabel' => 'Varchar',
+				'ConfigureLink' => 'Varchar'
 			)
 		);
 	}
@@ -41,6 +42,21 @@ class ProductQuestion_OrderItemExtension extends DataObjectDecorator {
 	 * and adds the relevant requirements
 	 * @return String
 	 */
+	function ConfigureLabel() {
+		Requirements::javascript("ecommerce_product_questions/javascript/EcomProductQuestions.js");
+		if($this->owner->Order()->IsSubmitted()) {
+			return "";
+		}
+		else {
+			return $this->owner->ProductQuestionsAnswerFormLabel();
+		}
+	}
+
+	/**
+	 * returns a link to configure an OrderItem
+	 * and adds the relevant requirements
+	 * @return String
+	 */
 	function ConfigureLink() {
 		Requirements::javascript("ecommerce_product_questions/javascript/EcomProductQuestions.js");
 		if($this->owner->Order()->IsSubmitted()) {
@@ -51,6 +67,22 @@ class ProductQuestion_OrderItemExtension extends DataObjectDecorator {
 		}
 	}
 
+	/**
+	 *returns the link to edit the products.
+	 * @return String
+	 */
+	function ProductQuestionsAnswerFormLabel(){
+		if($this->owner->HasProductQuestions()) {
+			$buyable = $this->productQuestionBuyable();
+			if($buyable) {
+				if($label = $buyable->CustomConfigureLabel()){
+					return $label;
+				}
+			}
+		}
+		return _t("ProductQuestion.CONFIGURE", "Configure");
+	}
+	
 	/**
 	 *returns the link to edit the products.
 	 * @return String

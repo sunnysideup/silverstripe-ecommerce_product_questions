@@ -16,6 +16,9 @@ class ProductQuestion_ProductVariationDecorator extends DataObjectDecorator {
 	 */
 	function extraStatics() {
 		return array(
+			'db' => array(
+				'ConfigureLabel' => 'Varchar(50)'
+			),
 			'many_many' => array(
 				'IgnoreProductQuestions' => 'ProductQuestion',
 				'AdditionalProductQuestions' => 'ProductQuestion'
@@ -25,18 +28,21 @@ class ProductQuestion_ProductVariationDecorator extends DataObjectDecorator {
 
 
 	function updateCMSFields($fields) {
-		$productQuestionsDefault = $this->owner->Product()->ProductQuestions();
-		if($productQuestionsDefault){
-			$productQuestionsDefaultArray = $productQuestionsDefault->map("ID", "FullName");
-			$fields->addFieldToTab("Root.Questions", new CheckboxSetField("IgnoreProductQuestions", "Ignore Questions for this variation", $productQuestionsDefaultArray));
-		}
-		if(empty($productQuestionsDefaultArray) || count($productQuestionsDefaultArray)) {
-			$productQuestionsDefaultArray = array(1 => 1);
-		}
-		$productQuestionsAdditional = DataObject::get("ProductQuestion", "ProductQuestion.ID NOT IN(".implode(array_flip($productQuestionsDefaultArray)).")");
-		if($productQuestionsAdditional){
-			$productQuestionsAdditionalArray = $productQuestionsAdditional->map("ID", "FullName");
-			$fields->addFieldToTab("Root.Questions", new CheckboxSetField("AdditionalProductQuestions", "Additional Questions for this variation", $productQuestionsAdditionalArray));
+		if(DataObject::get("ProductQuestion")) {
+			$fields->addFieldToTab("Root.Content", new TextField("ConfigureLabel", "Configure Link Label"));
+			$productQuestionsDefault = $this->owner->Product()->ProductQuestions();
+			if($productQuestionsDefault){
+				$productQuestionsDefaultArray = $productQuestionsDefault->map("ID", "FullName");
+				$fields->addFieldToTab("Root.Questions", new CheckboxSetField("IgnoreProductQuestions", "Ignore Questions for this variation", $productQuestionsDefaultArray));
+			}
+			if(empty($productQuestionsDefaultArray) || count($productQuestionsDefaultArray)) {
+				$productQuestionsDefaultArray = array(1 => 1);
+			}
+			$productQuestionsAdditional = DataObject::get("ProductQuestion", "ProductQuestion.ID NOT IN(".implode(array_flip($productQuestionsDefaultArray)).")");
+			if($productQuestionsAdditional){
+				$productQuestionsAdditionalArray = $productQuestionsAdditional->map("ID", "FullName");
+				$fields->addFieldToTab("Root.Questions", new CheckboxSetField("AdditionalProductQuestions", "Additional Questions for this variation", $productQuestionsAdditionalArray));
+			}
 		}
 	}
 
@@ -83,6 +89,24 @@ class ProductQuestion_ProductVariationDecorator extends DataObjectDecorator {
 			$productQuestionsArray = array(0 => 0);
 		}
 		return DataObject::get("ProductQuestion", "ProductQuestion.ID IN (".implode(",", $productQuestionsArray).")");
+	}
+
+
+	/**
+	 * returns a label that is used to allow customers to open the form
+	 * for answering the Product Questions.
+	 * @return String
+	 */
+	public function CustomConfigureLabel(){
+		if($this->owner->ConfigureLabel) {
+			return $this->owner->ConfigureLabel;
+		}
+		elseif($product = $this->owner->Product()) {
+			if($label = $product->owner->customConfigureLabel()) {
+				return $label;
+			}
+		}
+		return "";
 	}
 
 }

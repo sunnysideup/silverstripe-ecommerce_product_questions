@@ -16,6 +16,9 @@ class ProductQuestion_ProductDecorator extends DataObjectDecorator {
 	 */
 	function extraStatics() {
 		return array(
+			'db' => array(
+				'ConfigureLabel' => 'Varchar(50)'
+			),
 			'belongs_many_many' => array(
 				'ProductQuestions' => 'ProductQuestion'
 			)
@@ -27,12 +30,25 @@ class ProductQuestion_ProductDecorator extends DataObjectDecorator {
 		$productQuestions = DataObject::get("ProductQuestion");
 		if($productQuestions){
 			$productQuestionsArray = $productQuestions->map("ID", "FullName");
+			$fields->addFieldToTab("Root.Content.Questions", new TextField("ConfigureLabel", "Configure Link Label"));
 			$fields->addFieldToTab("Root.Content.Questions", new CheckboxSetField("ProductQuestions", "Additional Questions", $productQuestionsArray));
 		}
 	}
 
 	function ProductQuestionsAnswerFormLink($id = 0){
 		return $this->owner->Link("productquestionsanswerselect")."/".$id."/?BackURL=".urlencode(Controller::curr()->Link());
+	}
+
+	/**
+	 * returns a label that is used to allow customers to open the form
+	 * for answering the Product Questions.
+	 * @return String
+	 */
+	public function CustomConfigureLabel(){
+		if($this->owner->ConfigureLabel) {
+			return $this->owner->ConfigureLabel;
+		}
+		return _t("ProductQuestion.CONFIGURE", "Configure");
 	}
 
 }

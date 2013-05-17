@@ -31,14 +31,12 @@ class ProductQuestion_ProductVariationDecorator extends DataObjectDecorator {
 		if(DataObject::get("ProductQuestion")) {
 			$fields->addFieldToTab("Root.Content", new TextField("ConfigureLabel", "Configure Link Label"));
 			$productQuestionsDefault = $this->owner->Product()->ProductQuestions();
+			$productQuestionsDefaultArray = array(0 => 0);
 			if($productQuestionsDefault && $productQuestionsDefault->count()){
 				$productQuestionsDefaultArray = $productQuestionsDefault->map("ID", "FullName");
 				$fields->addFieldToTab("Root.Questions", new CheckboxSetField("IgnoreProductQuestions", "Ignore Questions for this variation", $productQuestionsDefaultArray));
 			}
-			if(empty($productQuestionsDefaultArray) || !count($productQuestionsDefaultArray)) {
-				$productQuestionsDefaultArray = array(1 => 1);
-			}
-			$productQuestionsAdditional = DataObject::get("ProductQuestion", "ProductQuestion.ID NOT IN(".implode(array_flip($productQuestionsDefaultArray)).")");
+			$productQuestionsAdditional = DataObject::get("ProductQuestion", "ProductQuestion.ID NOT IN(".implode(",", array_flip($productQuestionsDefaultArray)).")");
 			if($productQuestionsAdditional && $productQuestionsAdditional->count()){
 				$productQuestionsAdditionalArray = $productQuestionsAdditional->map("ID", "FullName");
 				$fields->addFieldToTab("Root.Questions", new CheckboxSetField("AdditionalProductQuestions", "Additional Questions for this variation", $productQuestionsAdditionalArray));

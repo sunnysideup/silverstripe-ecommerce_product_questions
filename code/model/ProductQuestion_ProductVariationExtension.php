@@ -65,13 +65,15 @@ class ProductQuestion_ProductVariationDecorator extends DataObjectDecorator {
 	 * @return String
 	 */
 	public function CustomConfigureLabel(){
-		if($this->ProductQuestions() && $this->ProductQuestions()->count()) {		
-			if($this->owner->ConfigureLabel) {
-				return $this->owner->ConfigureLabel;
-			}
-			elseif($product = $this->owner->Product()) {
-				if($label = $product->owner->customConfigureLabel()) {
-					return $label;
+		if($this->owner->ProductQuestions()) {
+			if($this->owner->ProductQuestions()->count()) {
+				if($this->owner->ConfigureLabel) {
+					return $this->owner->ConfigureLabel;
+				}
+				elseif($product = $this->owner->Product()) {
+					if($label = $product->owner->CustomConfigureLabel()) {
+						return $label;
+					}
 				}
 			}
 		}

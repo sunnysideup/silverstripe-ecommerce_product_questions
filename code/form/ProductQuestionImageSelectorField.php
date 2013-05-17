@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * form field to select answer for question.
+ * 
+ * 
+ */ 
+
+
 class ProductQuestionImageSelectorField extends OptionsetField {
 
 	protected static $number_per_row = 1;

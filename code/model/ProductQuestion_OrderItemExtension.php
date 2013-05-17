@@ -65,23 +65,23 @@ class ProductQuestion_OrderItemExtension extends DataObjectDecorator {
 		return "";
 	}
 
-	protected static $has_product_questions = null;
+	protected static $has_product_questions = array();
 
 	/**
 	 *
 	 * @return Boolean
 	 */
 	function HasProductQuestions(){
-		if(self::$has_product_questions === null) {
+		if(!isset(self::$has_product_questions[$this->owner->ID])) {
 			$productQuestions = $this->owner->ProductQuestions();
 			if($productQuestions && $productQuestions->count()) {
-				self::$has_product_questions = true;
+				self::$has_product_questions[$this->owner->ID] = true;
 			}
 			else {
-				self::$has_product_questions = false;
+				self::$has_product_questions[$this->owner->ID] = false;
 			}
 		}
-		return self::$has_product_questions;
+		return self::$has_product_questions[$this->owner->ID];
 	}
 
 	/**
@@ -106,11 +106,11 @@ class ProductQuestion_OrderItemExtension extends DataObjectDecorator {
 	 *
 	 * @return Product | Null
 	 */
-	protected function productQuestionBuyable(){
-		if(self::$product_question_product === null) {
-			self::$product_question_product = $this->owner->Buyable();
+	public function productQuestionBuyable(){
+		if(!isset(self::$product_question_product[$this->owner->ID])) {
+			self::$product_question_product[$this->owner->ID] = $this->owner->Buyable();
 		}
-		return self::$product_question_product;
+		return self::$product_question_product[$this->owner->ID];
 	}
 
 	/**

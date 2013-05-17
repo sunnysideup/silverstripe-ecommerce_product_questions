@@ -181,7 +181,7 @@ class ProductQuestion extends DataObject {
 	 */
 	function customFieldLabels(){
 		$newLabels = array(
-			"InternalCode" => _t("ProductQuestion.INTERNALCODE", "Code used to identify question (not snown to customers)"),
+			"InternalCode" => _t("ProductQuestion.INTERNALCODE", "Code used to identify question (not shown to customers)"),
 			"Question" => _t("ProductQuestion.QUESTION", "Question (e.g. what configuration do you prefer?)"),
 			"Label" => _t("ProductQuestion.LABEL", "Label (e.g. Your selected configuration)"),
 			"Options" => _t("ProductQuestion.OPTIONS", "Predefined Options (leave blank for any option).  These must be comma separated (e.g. red, blue, yellow, orange)"),

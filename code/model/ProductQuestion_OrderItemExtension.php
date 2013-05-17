@@ -79,8 +79,9 @@ class ProductQuestion_OrderItemExtension extends DataObjectDecorator {
 					return $label;
 				}
 			}
+			return _t("ProductQuestion.CONFIGURE", "Configure");
 		}
-		return _t("ProductQuestion.CONFIGURE", "Configure");
+		return "";
 	}
 	
 	/**

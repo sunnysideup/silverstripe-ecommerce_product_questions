@@ -45,10 +45,12 @@ class ProductQuestion_ProductDecorator extends DataObjectDecorator {
 	 * @return String
 	 */
 	public function CustomConfigureLabel(){
-		if($this->owner->ConfigureLabel) {
-			return $this->owner->ConfigureLabel;
+		if($this->ProductQuestions() && $this->ProductQuestions()->count()) {
+			if($this->owner->ConfigureLabel) {
+				return $this->owner->ConfigureLabel;
+			}
+			return _t("ProductQuestion.CONFIGURE", "Configure");
 		}
-		return _t("ProductQuestion.CONFIGURE", "Configure");
 	}
 
 }

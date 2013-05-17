@@ -44,7 +44,6 @@ class ProductQuestion_ProductVariationDecorator extends DataObjectDecorator {
 		}
 	}
 
-
 	/**
 	 * returns the fields from the form
 	 * @return FieldSet
@@ -58,6 +57,25 @@ class ProductQuestion_ProductVariationDecorator extends DataObjectDecorator {
 			}
 		}
 		return $fieldSet;
+	}
+
+	/**
+	 * returns a label that is used to allow customers to open the form
+	 * for answering the Product Questions.
+	 * @return String
+	 */
+	public function CustomConfigureLabel(){
+		if($this->ProductQuestions() && $this->ProductQuestions()->count()) {		
+			if($this->owner->ConfigureLabel) {
+				return $this->owner->ConfigureLabel;
+			}
+			elseif($product = $this->owner->Product()) {
+				if($label = $product->owner->customConfigureLabel()) {
+					return $label;
+				}
+			}
+		}
+		return "";
 	}
 
 	function ProductQuestionsAnswerFormLink($id = 0){
@@ -90,22 +108,6 @@ class ProductQuestion_ProductVariationDecorator extends DataObjectDecorator {
 	}
 
 
-	/**
-	 * returns a label that is used to allow customers to open the form
-	 * for answering the Product Questions.
-	 * @return String
-	 */
-	public function CustomConfigureLabel(){
-		if($this->owner->ConfigureLabel) {
-			return $this->owner->ConfigureLabel;
-		}
-		elseif($product = $this->owner->Product()) {
-			if($label = $product->owner->customConfigureLabel()) {
-				return $label;
-			}
-		}
-		return "";
-	}
 
 }
 

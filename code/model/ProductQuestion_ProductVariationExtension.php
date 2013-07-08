@@ -8,37 +8,27 @@
  *
  *
  */
-class ProductQuestion_ProductVariationDecorator extends DataObjectDecorator {
+class ProductQuestion_ProductVariationDecorator extends DataExtension {
 
-	/**
-	 * standard SS method
-	 * defines additional statistics
-	 */
-	function extraStatics() {
-		return array(
-			'db' => array(
-				'ConfigureLabel' => 'Varchar(50)'
-			),
-			'many_many' => array(
-				'IgnoreProductQuestions' => 'ProductQuestion',
-				'AdditionalProductQuestions' => 'ProductQuestion'
-			)
-		);
-	}
+	protected static $db = array("ConfigureLabel" => 'Varchar(50)');
 
+	protected static $many_many = array(
+		"IgnoreProductQuestions" => 'ProductQuestion',
+		"AdditionalProductQuestions" => 'ProductQuestion'
+	);
 
-	function updateCMSFields($fields) {
-		if(DataObject::get("ProductQuestion")) {
+	function updateCMSFields(FieldList $fields) {
+		if(ProductQuestion::get()) {
 			$fields->addFieldToTab("Root.Content", new TextField("ConfigureLabel", "Configure Link Label"));
 			$productQuestionsDefault = $this->owner->Product()->ProductQuestions();
 			$productQuestionsDefaultArray = array(0 => 0);
 			if($productQuestionsDefault && $productQuestionsDefault->count()){
-				$productQuestionsDefaultArray = $productQuestionsDefault->map("ID", "FullName");
+				$productQuestionsDefaultArray = $productQuestionsDefault->map("ID", "FullName")->toArray();
 				$fields->addFieldToTab("Root.Questions", new CheckboxSetField("IgnoreProductQuestions", "Ignore Questions for this variation", $productQuestionsDefaultArray));
 			}
-			$productQuestionsAdditional = DataObject::get("ProductQuestion", "ProductQuestion.ID NOT IN(".implode(",", array_flip($productQuestionsDefaultArray)).")");
-			if($productQuestionsAdditional && $productQuestionsAdditional->count()){
-				$productQuestionsAdditionalArray = $productQuestionsAdditional->map("ID", "FullName");
+			$productQuestionsAdditional = ProductQuestion::get()->exclude(array("ProductQuestion.ID" => array_flip($productQuestionsDefaultArray)));
+			if($productQuestionsAdditional->count()){
+				$productQuestionsAdditionalArray = $productQuestionsAdditional->map("ID", "FullName")->toArray();
 				$fields->addFieldToTab("Root.Questions", new CheckboxSetField("AdditionalProductQuestions", "Additional Questions for this variation", $productQuestionsAdditionalArray));
 			}
 		}
@@ -49,7 +39,7 @@ class ProductQuestion_ProductVariationDecorator extends DataObjectDecorator {
 	 * @return FieldSet
 	 */
 	function ProductQuestionsAnswerFormFields(){
-		$fieldSet = new FieldSet();
+		$fieldSet = new FieldList();
 		$productQuestions = $this->ProductQuestions();
 		if($productQuestions && $productQuestions->count()) {
 			foreach($productQuestions as $productQuestion) {
@@ -89,7 +79,7 @@ class ProductQuestion_ProductVariationDecorator extends DataObjectDecorator {
 		$productQuestions = $product->ProductQuestions();
 		$productQuestionsArray = array(0 => 0);
 		if($productQuestions && $productQuestions->count()) {
-			$productQuestionsArray = $productQuestions->map("ID", "ID");
+			$productQuestionsArray = $productQuestions->map("ID", "ID")->toArray();
 		}
 		$ignoreProductQuestions = $this->owner->IgnoreProductQuestions();
 		if($ignoreProductQuestions && $ignoreProductQuestions->count()) {
@@ -106,7 +96,7 @@ class ProductQuestion_ProductVariationDecorator extends DataObjectDecorator {
 		if(!count($productQuestionsArray)) {
 			$productQuestionsArray = array(0 => 0);
 		}
-		return DataObject::get("ProductQuestion", "ProductQuestion.ID IN (".implode(",", $productQuestionsArray).")");
+		return ProductQuestion::get()->filter(array("ProductQuestion.ID" => $productQuestionsArray));
 	}
 
 

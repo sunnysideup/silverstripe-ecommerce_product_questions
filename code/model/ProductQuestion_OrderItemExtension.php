@@ -7,25 +7,18 @@
  *
  */
 
-class ProductQuestion_OrderItemExtension extends DataObjectDecorator {
+class ProductQuestion_OrderItemExtension extends DataExtension {
 
-	/**
-	 * standard SS method
-	 * defines additional statistics
-	 */
-	function extraStatics() {
-		return array(
-			'db' => array(
+	protected static $db = array(
 				'ProductQuestionsAnswer' => 'HTMLText',
 				'JSONAnswers' => 'Text'
-			),
-			'casting' => array(
+			);
+
+	protected static $casting = array(
 				'ProductQuestionsAnswerNOHTML' => 'Text',
 				'ConfigureLabel' => 'Varchar',
 				'ConfigureLink' => 'Varchar'
-			)
-		);
-	}
+			);
 
 	/**
 	 *
@@ -162,19 +155,19 @@ class ProductQuestion_OrderItemExtension extends DataObjectDecorator {
 		}
 		if($productQuestions && $productQuestions->count()) {
 			$requiredfields = array();
-			$fields = new FieldSet(
+			$fields = new FieldList(
 				new HiddenField("OrderItemID", "OrderItemID", $this->owner->ID),
 				new HiddenField("BackURL", "BackURL", $backURL)
 			);
 			$values = array();
 			if($this->owner->JSONAnswers) {
-				$values = @Convert::json2array($this->owner->JSONAnswers);
+				$values = @json_decode($this->owner->JSONAnswers);
 			}
 			foreach($productQuestions as $productQuestion) {
 				$value = empty($values[$productQuestion->ID]) ? null : $values[$productQuestion->ID];
 				$fields->push($productQuestion->getFieldForProduct($buyable, $value)); //TODO: perhaps use a dropdown instead (elimiates need to use keyboard)
 			}
-			$actions = new FieldSet(
+			$actions = new FieldList(
 				array(
 					new FormAction('addproductquestionsanswer', _t("ProductQuestion.ANSWER_QUESTION","Update Selection")),
 				)
@@ -198,7 +191,7 @@ class ProductQuestion_OrderItemExtension extends DataObjectDecorator {
 			$this->owner->ProductQuestionsAnswer = "";
 			if(is_array($answers) && count($answers)) {
 				foreach($answers as $productQuestionID => $productQuestionAnswer) {
-					$question = DataObject::get_by_id("ProductQuestion", intval($productQuestionID));
+					$question = ProductQuestion::get()->byID(intval($productQuestionID));
 					if($question) {
 						$this->owner->ProductQuestionsAnswer .= "
 							<span class=\"productQuestion\">

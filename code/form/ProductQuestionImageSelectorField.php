@@ -46,7 +46,7 @@ class ProductQuestionImageSelectorField extends OptionsetField {
 		$this->height = $height;
 	}
 
-	function Field() {
+	function Field($properties = array()) {
 		$options = '';
 		$source = $this->getSource();
 		$count = 0;
@@ -87,11 +87,11 @@ class ProductQuestionImageSelectorField extends OptionsetField {
 	}
 
 	protected function createObjects(){
-		$this->objects = new DataObjectSet();
+		$this->objects = new ArrayList();
 		if($this->options && is_array($this->options) && count($this->options)) {
 			foreach($this->options as $option) {
 				$imageOptions = ProductQuestion::create_file_array_from_option($option);
-				$image = DataObject::get_one("Image", "\"ParentID\" = ".$this->folderID. " AND \"Name\" IN('".implode("','", $imageOptions)."')");
+				$image = Image::get()->filter(array("ParentID" => $this->folderID, "Name" => $imageOptions))->First();
 				if($image) {
 					$image->Key = $option;
 					$image->Value = $option;

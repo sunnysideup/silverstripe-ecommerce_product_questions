@@ -103,17 +103,17 @@ class ProductQuestion extends DataObject {
 		$fields = parent::getCMSFields();
 		$productCount = DB::query("SELECT COUNT(\"ID\") AS C  FROM \"Product\";")->value();
 		if($productCount > 0 && $productCount < 500) {
-			$products = DataObject::get("Product");
-			if($products) {
-				$productMap = $products->map("ID", "FullName");
+			$products = Product::get();
+			if($products->count()) {
+				$productMap = $products->map("ID", "FullName")->toArray();
 				$fields->replaceField("Products", new CheckboxSetField("Products", _t("ProductQuestion.PRODUCTS", "Products"), $productMap));
 			}
 		}
 		$fields->addFieldToTab("Root.Main", new HeaderField("Images", _t("ProductQuestion.IMAGES", "Images"), 2), "HasImages");
 		if($this->HasImages) {
-			$folders = DataObject::get("Folder", "\"Sort\"");
-			if($folders) {
-				$folderMap = $folders->map("ID", "Title");
+			$folders = Folder::get()->filter("Sort");
+			if($folders->count()) {
+				$folderMap = $folders->map("ID", "Title")->toArray();
 				$folders = null;
 				$labelArray = $this->customFieldLabels();
 				$labelArray = $labelArray["FolderID"];
@@ -123,9 +123,9 @@ class ProductQuestion extends DataObject {
 				);
 			}
 			if($this->FolderID) {
-				$imagesInFolder = DataObject::get("Image", "\"ParentID\" = ".$this->FolderID);
-				if($imagesInFolder) {
-					$imagesInFolderArray = $imagesInFolder->map("ID", "Name");
+				$imagesInFolder = Image::get()->filter(array("ParentID" => $this->FolderID));
+				if($imagesInFolder->count()) {
+					$imagesInFolderArray = $imagesInFolder->map("ID", "Name")->toArray();
 					$options = explode(",", $this->Options);
 					$imagesInFolderField = new ReadonlyField("ImagesInFolder", _t("ProductQuestion.NO_IMAGES", "Images in folder"), implode("<br />", $imagesInFolderArray));
 					$imagesInFolderField->dontEscape = true;

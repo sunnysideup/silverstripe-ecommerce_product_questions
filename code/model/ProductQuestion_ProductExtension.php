@@ -8,30 +8,19 @@
  *
  *
  */
-class ProductQuestion_ProductDecorator extends DataObjectDecorator {
+class ProductQuestion_ProductDecorator extends DataExtension {
 
-	/**
-	 * standard SS method
-	 * defines additional statistics
-	 */
-	function extraStatics() {
-		return array(
-			'db' => array(
-				'ConfigureLabel' => 'Varchar(50)'
-			),
-			'belongs_many_many' => array(
-				'ProductQuestions' => 'ProductQuestion'
-			)
-		);
-	}
+	protected static $db = array('ConfigureLabel' => 'Varchar(50)');
+
+	protected static $belongs_many_many = array('ProductQuestions' => 'ProductQuestion');
 
 
-	function updateCMSFields($fields) {
-		$productQuestions = DataObject::get("ProductQuestion");
-		if($productQuestions){
-			$productQuestionsArray = $productQuestions->map("ID", "FullName");
-			$fields->addFieldToTab("Root.Content.Questions", new TextField("ConfigureLabel", "Configure Link Label"));
-			$fields->addFieldToTab("Root.Content.Questions", new CheckboxSetField("ProductQuestions", "Additional Questions", $productQuestionsArray));
+	function updateCMSFields(FieldList $fields) {
+		$productQuestions = ProductQuestion::get();
+		if($productQuestions->count()){
+			$productQuestionsArray = $productQuestions->map("ID", "FullName")->toArray();
+			$fields->addFieldToTab("Root.Questions", new TextField("ConfigureLabel", "Configure Link Label"));
+			$fields->addFieldToTab("Root.Questions", new CheckboxSetField("ProductQuestions", "Additional Questions", $productQuestionsArray));
 		}
 	}
 
@@ -113,7 +102,7 @@ class ProductQuestion_ProductControllerDecorator extends Extension {
 	 * @return FieldSet
 	 */
 	function ProductQuestionsAnswerFormFields(){
-		$fieldSet = new FieldSet();
+		$fieldSet = new FieldList();
 		$product = $this->owner->dataRecord;
 		$productQuestions = $product->ProductQuestions();
 		if($productQuestions) {
@@ -143,10 +132,10 @@ class ProductQuestion_ProductControllerDecorator extends Extension {
 			);
 		}
 		if(isset($data["BackURL"])){
-			Director::redirect($data["BackURL"]);
+			$this->redirect($data["BackURL"]);
 		}
 		else {
-			Director::redirectBack();
+			$this->redirectBack();
 		}
 	}
 
@@ -163,7 +152,7 @@ class ProductQuestion_ProductControllerDecorator extends Extension {
 			$id = intval($this->owner->request->getVar("OrderItemID"));
 		}
 		if($id) {
-			$this->productQuestionOrderItem = DataObject::get_by_id("OrderItem", $id);
+			$this->productQuestionOrderItem = OrderItem::get()->byID($id);
 		}
 		if(!$this->productQuestionOrderItem) {
 			user_error("NO this->productQuestionOrderItem specified");

@@ -26,7 +26,7 @@ class ProductQuestion_ProductVariationDecorator extends DataExtension {
 				$productQuestionsDefaultArray = $productQuestionsDefault->map("ID", "FullName")->toArray();
 				$fields->addFieldToTab("Root.Questions", new CheckboxSetField("IgnoreProductQuestions", "Ignore Questions for this variation", $productQuestionsDefaultArray));
 			}
-			$productQuestionsAdditional = ProductQuestion::get()->exclude(array("ProductQuestion.ID" => array_flip($productQuestionsDefaultArray)));
+			$productQuestionsAdditional = ProductQuestion::get()->exclude(array("ID" => array_flip($productQuestionsDefaultArray)));
 			if($productQuestionsAdditional->count()){
 				$productQuestionsAdditionalArray = $productQuestionsAdditional->map("ID", "FullName")->toArray();
 				$fields->addFieldToTab("Root.Questions", new CheckboxSetField("AdditionalProductQuestions", "Additional Questions for this variation", $productQuestionsAdditionalArray));
@@ -96,7 +96,7 @@ class ProductQuestion_ProductVariationDecorator extends DataExtension {
 		if(!count($productQuestionsArray)) {
 			$productQuestionsArray = array(0 => 0);
 		}
-		return ProductQuestion::get()->filter(array("ProductQuestion.ID" => $productQuestionsArray));
+		return ProductQuestion::get()->filter(array("ID" => $productQuestionsArray));
 	}
 
 

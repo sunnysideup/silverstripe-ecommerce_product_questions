@@ -151,9 +151,9 @@ class ProductQuestion extends DataObject {
 						$matchesInFolderField = new ReadonlyField("MatchesInFolder", _t("ProductQuestion.MATCHES_IN_FOLDER", "Matches in folder"), implode("<br />", $matchesInFolderArray));
 						$matchesInFolderField->dontEscape = true;
 						$fields->addFieldToTab("Root.Images", $matchesInFolderField);
-						$nonMatchesInFolderField = new ReadonlyField("NonMatchesInFolder", _t("ProductQuestion.NON_MATCHES_IN_FOLDER", "NON Matches in folder"), implode("<br />", $nonMatchesInFolderArray));
-						$nonMatchesInFolderField->dontEscape = true;
-						$fields->addFieldToTab("Root.Images", $nonMatchesInFolderField);
+						//$nonMatchesInFolderField = new ReadonlyField("NonMatchesInFolder", _t("ProductQuestion.NON_MATCHES_IN_FOLDER", "NON Matches in folder"), implode("<br />", $nonMatchesInFolderArray));
+						//$nonMatchesInFolderField->dontEscape = true;
+						//$fields->addFieldToTab("Root.Images", $nonMatchesInFolderField);
 					}
 				}
 				else {

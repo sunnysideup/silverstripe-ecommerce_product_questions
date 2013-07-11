@@ -10,9 +10,9 @@
  */
 class ProductQuestion_ProductDecorator extends DataExtension {
 
-	protected static $db = array('ConfigureLabel' => 'Varchar(50)');
+	private static $db = array('ConfigureLabel' => 'Varchar(50)');
 
-	protected static $belongs_many_many = array('ProductQuestions' => 'ProductQuestion');
+	private static $belongs_many_many = array('ProductQuestions' => 'ProductQuestion');
 
 
 	function updateCMSFields(FieldList $fields) {
@@ -61,7 +61,7 @@ class ProductQuestion_ProductControllerDecorator extends Extension {
 	 * we need this here to
 	 * because otherwise the extension will not work
 	 */
-	static $allowed_actions = array(
+	private static $allowed_actions = array(
 		"ProductQuestionsAnswerForm",
 		"productquestionsanswerselect"
 	);

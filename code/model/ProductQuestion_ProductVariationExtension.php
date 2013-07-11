@@ -10,9 +10,9 @@
  */
 class ProductQuestion_ProductVariationDecorator extends DataExtension {
 
-	protected static $db = array("ConfigureLabel" => 'Varchar(50)');
+	private static $db = array("ConfigureLabel" => 'Varchar(50)');
 
-	protected static $many_many = array(
+	private static $many_many = array(
 		"IgnoreProductQuestions" => 'ProductQuestion',
 		"AdditionalProductQuestions" => 'ProductQuestion'
 	);

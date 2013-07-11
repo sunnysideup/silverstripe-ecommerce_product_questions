@@ -1,0 +1,23 @@
+###########################################
+# START ECOMMERCE PRODUCT QUESTIONS
+###########################################
+
+#May set
+
+ProductVariation:
+  extensions:
+    - ProductQuestion_ProductVariationDecorator
+
+# Highly Recommended
+## Example
+
+ProductsAndGroupsModelAdmin:
+  managed_models:
+    - ProductQuestion
+    - ...
+    - ...
+
+###########################################
+# END ECOMMERCE PRODUCT QUESTIONS
+###########################################
+

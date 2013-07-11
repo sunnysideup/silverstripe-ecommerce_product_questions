@@ -9,9 +9,7 @@
 
 class ProductQuestionImageSelectorField extends OptionsetField {
 
-	protected static $number_per_row = 1;
-		static function set_number_per_row($v) { self::$number_per_row = $v;}
-		static function get_number_per_row() { return self::$number_per_row;}
+	private static $number_per_row = 1;
 
 	protected $folderID = 0;
 

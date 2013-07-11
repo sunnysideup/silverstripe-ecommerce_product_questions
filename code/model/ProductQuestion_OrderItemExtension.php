@@ -9,12 +9,12 @@
 
 class ProductQuestion_OrderItemExtension extends DataExtension {
 
-	protected static $db = array(
+	private static $db = array(
 				'ProductQuestionsAnswer' => 'HTMLText',
 				'JSONAnswers' => 'Text'
 			);
 
-	protected static $casting = array(
+	private static $casting = array(
 				'ProductQuestionsAnswerNOHTML' => 'Text',
 				'ConfigureLabel' => 'Varchar',
 				'ConfigureLink' => 'Varchar'
@@ -91,7 +91,7 @@ class ProductQuestion_OrderItemExtension extends DataExtension {
 		return "";
 	}
 
-	protected static $has_product_questions = array();
+	private static $has_product_questions = array();
 
 	/**
 	 *
@@ -125,7 +125,7 @@ class ProductQuestion_OrderItemExtension extends DataExtension {
 	 * product relating to an orderItem
 	 * @var Product
 	 */
-	protected static $product_question_product = null;
+	private static $product_question_product = null;
 
 
 	/**

@@ -10,7 +10,7 @@ class ProductQuestion extends DataObject {
 	/**
 	 * Standard SS variable.
 	 */
-	public static $db = array(
+	private static $db = array(
 		'InternalCode' => 'Varchar(30)',
 		'Question' => 'Varchar(30)',
 		'Label' => 'Varchar(30)',
@@ -21,7 +21,7 @@ class ProductQuestion extends DataObject {
 	/**
 	 * Standard SS variable.
 	 */
-	public static $casting = array(
+	private static $casting = array(
 		'FullName' => 'Varchar'
 	);
 
@@ -29,7 +29,7 @@ class ProductQuestion extends DataObject {
 	 * Standard SS variable.
 	 * Links questions to products
 	 */
-	static $many_many = array(
+	private static $many_many = array(
 		'Products' => 'Product'
 	);
 
@@ -37,7 +37,7 @@ class ProductQuestion extends DataObject {
 	 * Standard SS variable.
 	 * Links to folder for images
 	 */
-	static $has_one = array(
+	private static $has_one = array(
 		'Folder' => 'Folder'
 	);
 
@@ -45,7 +45,7 @@ class ProductQuestion extends DataObject {
 	 * Standard SS variable.
 	 * Links questions to products
 	 */
-	static $summary_fields = array(
+	private static $summary_fields = array(
 		'InternalCode' => 'InternalCode',
 		'Question' => 'Question'
 	);
@@ -53,18 +53,18 @@ class ProductQuestion extends DataObject {
 	/**
 	 * Standard SS variable.
 	 */
-	public static $default_sort = "\"Question\" ASC";
+	private static $default_sort = "\"Question\" ASC";
 
 	/**
 	 * Standard SS variable.
 	 */
-	public static $singular_name = "Product Question";
+	private static $singular_name = "Product Question";
 		function i18n_singular_name() { return _t("ProductQuestion.PRODUCT_QUESTION", "Product Question");}
 
 	/**
 	 * Standard SS variable.
 	 */
-	public static $plural_name = "Product Variations";
+	private static $plural_name = "Product Variations";
 		function i18n_plural_name() { return _t("ProductQuestion.PRODUCT_QUESTIONS", "Product Questions");}
 		public static function get_plural_name(){
 			$obj = Singleton("ProductQuestion");

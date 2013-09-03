@@ -4,10 +4,6 @@
 
 #May set
 
-ProductVariation:
-  extensions:
-    - ProductQuestion_ProductVariationDecorator
-
 # Highly Recommended
 ## Example
 

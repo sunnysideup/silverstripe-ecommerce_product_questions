@@ -1,3 +1,6 @@
+---
+Name: ProductQuestionMain
+---
 Product:
   extensions:
     - ProductQuestion_ProductDecorator
@@ -20,5 +23,5 @@ Only:
 ProductVariation:
   extensions:
     - ProductQuestion_ProductVariationDecorator
----
+
 

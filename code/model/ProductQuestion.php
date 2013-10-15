@@ -111,7 +111,7 @@ class ProductQuestion extends DataObject {
 		}
 		$fields->addFieldToTab("Root.Main", new HeaderField("Images", _t("ProductQuestion.IMAGES", "Images"), 2), "HasImages");
 		if($this->HasImages) {
-			$folders = Folder::get()->filter("Sort");
+			$folders = Folder::get();
 			if($folders->count()) {
 				$folderMap = $folders->map("ID", "Title")->toArray();
 				$folders = null;

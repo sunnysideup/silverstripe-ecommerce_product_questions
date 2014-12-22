@@ -25,6 +25,7 @@ class ProductQuestion extends DataObject {
 	 * Standard SS variable.
 	 */
 	private static $casting = array(
+		'Title' => 'Varchar',
 		'FullName' => 'Varchar'
 	);
 
@@ -254,6 +255,15 @@ class ProductQuestion extends DataObject {
 	 */
 	public function FullName(){return $this->getFullName();}
 	public function getFullName(){
+		return $this->Question." (".$this->InternalCode.")";
+	}
+
+	/**
+	 * casted variable
+	 * @return String
+	 */
+	public function Title(){return $this->getTitle();}
+	public function getTitle(){
 		return $this->Question." (".$this->InternalCode.")";
 	}
 

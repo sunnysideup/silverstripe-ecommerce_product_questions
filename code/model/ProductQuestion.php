@@ -56,6 +56,20 @@ class ProductQuestion extends DataObject {
 
 	/**
 	 * Standard SS variable.
+	 * Links questions to products
+	 */
+	private static $searchable_fields = array(
+		'InternalCode' => 'PartialMatch',
+		'Question' => 'Varchar(255)',
+		'Label' => 'PartialMatch',
+		'DefaultAnswer' => 'PartialMatch',
+		'DefaultFormField' => 'PartialMatch',
+		'Options' => 'PartialMatch',
+		"HasImages" => true
+	);
+
+	/**
+	 * Standard SS variable.
 	 */
 	private static $default_sort = "\"Question\" ASC";
 
@@ -85,6 +99,15 @@ class ProductQuestion extends DataObject {
 		"DropdownField" => "Dropdown Field",
 		"OptionSetField" => "Option list Field"
 	);
+
+	/**
+	 * Maximum number of products on the site before the CheckboxSetField is
+	 * replaced with a GridField.
+	 * This field is used for selecting the products the question applies to.
+	 *
+	 * @var Int
+	 */
+	private static $max_products_for_gridfield = 300;
 
 	/**
 	 * Standard SS variable.
@@ -145,13 +168,19 @@ class ProductQuestion extends DataObject {
 		else {
 			$fields->removeFieldFromTab("DefaultFormField", "Root.Main");
 		}
-		$gridField = new GridField(
-			'Products',
-			_t("ProductQuestion.PRODUCTS", "Products showing this question"),
-			$this->Products(),
-			GridFieldEditOriginalPageConfig::create()
-		);
-		$fields->replaceField("Products", $gridField);
+		$productFieldTitle = _t("ProductQuestion.PRODUCTS", "Products showing this question");
+		if(Product::get()->count() < $this->Config->get("max_products_for_gridfield")) {
+			$productField = new CheckboxSex("Products", $productFieldTitle, Products::get()->map("ID", "FullTitle")->toArray());
+		}
+		else {
+			$productField = new GridField(
+				'Products',
+				_t("ProductQuestion.PRODUCTS", "Products showing this question"),
+				$this->Products(),
+				GridFieldEditOriginalPageConfig::create()
+			);
+		}
+		$fields->addFieldToTab("Root.Products", $productField);
 		$fields->addFieldToTab("Root.Main", new HeaderField("Images", _t("ProductQuestion.IMAGES", "Images"), 2), "HasImages");
 		if($this->HasImages) {
 			$folders = Folder::get();

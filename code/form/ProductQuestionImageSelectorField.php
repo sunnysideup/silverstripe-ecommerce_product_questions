@@ -2,14 +2,12 @@
 
 /**
  * form field to select answer for question.
- * 
- * 
- */ 
+ *
+ *
+ */
 
 
 class ProductQuestionImageSelectorField extends OptionsetField {
-
-	private static $number_per_row = 1;
 
 	protected $folderID = 0;
 

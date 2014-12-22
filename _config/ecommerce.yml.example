@@ -2,16 +2,17 @@
 # START ECOMMERCE PRODUCT QUESTIONS
 ###########################################
 
-#May set
-
-# Highly Recommended
-## Example
-
-ProductsAndGroupsModelAdmin:
-  managed_models:
-    - ProductQuestion
-    - ...
-    - ...
+ProductQuestion:
+  available_form_fields_free:
+    - TextField
+    - DateField
+    - EmailField
+    - TextareaField
+    - etc...
+  available_form_fields_list:
+    - DropdownField
+    - etc...
+  max_products_for_gridfield: 300
 
 ###########################################
 # END ECOMMERCE PRODUCT QUESTIONS

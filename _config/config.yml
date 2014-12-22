@@ -5,7 +5,7 @@ Product:
   extensions:
     - ProductQuestion_ProductDecorator
 
-ProductPage_Controller:
+Product_Controller:
   extensions:
     - ProductQuestion_ProductControllerDecorator
 
@@ -15,6 +15,10 @@ OrderItem:
 
 ProductQuestion:
   number_per_row: 1
+
+ProductConfigModelAdmin:
+  managed_models:
+    - ProductQuestion
 
 ---
 Only:

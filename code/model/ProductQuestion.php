@@ -1,6 +1,7 @@
 <?php
 
 /**
+ * Define the Product Questions ...
  *
  * @package ecommerce
  * @subpackage ProductQuestion
@@ -12,8 +13,10 @@ class ProductQuestion extends DataObject {
 	 */
 	private static $db = array(
 		'InternalCode' => 'Varchar(30)',
-		'Question' => 'Varchar(30)',
-		'Label' => 'Varchar(30)',
+		'Question' => 'Varchar(255)',
+		'Label' => 'Varchar(100)',
+		'DefaultAnswer' => 'Varchar(150)',
+		'DefaultFormField' => 'Varchar(255)',
 		'Options' => 'Text',
 		"HasImages" => "Boolean"
 	);
@@ -54,6 +57,33 @@ class ProductQuestion extends DataObject {
 	 * Standard SS variable.
 	 */
 	private static $default_sort = "\"Question\" ASC";
+
+	/**
+	 * Standard SS variable.
+	 */
+	private static $defaults = array(
+		"DefaultFormField" => "TextField",
+		"DefaultAnswer" => "tba"
+	);
+
+	/**
+	 * form fields used without a list
+	 * @var array
+	 */
+	private static $available_form_fields_free = array(
+		"TextField" => "Text Field",
+		"DateField" => "Date Field",
+		"EmailField" => "Email Field"
+	);
+
+	/**
+	 * form fields used with a list
+	 * @var array
+	 */
+	private static $available_form_fields_list = array(
+		"DropdownField" => "Dropdown Field",
+		"OptionSetField" => "Option list Field"
+	);
 
 	/**
 	 * Standard SS variable.
@@ -101,14 +131,26 @@ class ProductQuestion extends DataObject {
 	 */
 	function getCMSFields() {
 		$fields = parent::getCMSFields();
-		$productCount = DB::query("SELECT COUNT(\"ID\") AS C  FROM \"Product\";")->value();
-		if($productCount > 0 && $productCount < 500) {
-			$products = Product::get();
-			if($products->count()) {
-				$productMap = $products->map("ID", "FullName")->toArray();
-				$fields->replaceField("Products", new CheckboxSetField("Products", _t("ProductQuestion.PRODUCTS", "Products"), $productMap));
-			}
+		if(!$this->HasImages) {
+			$fields->replaceField(
+				"DefaultFormField",
+				new OptionSetField(
+					"DefaultFormField",
+					_t("ProductQuestion.DEFAULTFORMFIELD", "Field type to use"),
+					$this->Options ? $this->Config()->get("available_form_fields_list") : $this->Config()->get("available_form_fields_free")
+				)
+			);
 		}
+		else {
+			$fields->removeFieldFromTab("DefaultFormField", "Root.Main");
+		}
+		$gridField = new GridField(
+			'Products',
+			_t("ProductQuestion.PRODUCTS", "Products showing this question"),
+			$this->Products(),
+			GridFieldEditOriginalPageConfig::create()
+		);
+		$fields->replaceField("Products", $gridField);
 		$fields->addFieldToTab("Root.Main", new HeaderField("Images", _t("ProductQuestion.IMAGES", "Images"), 2), "HasImages");
 		if($this->HasImages) {
 			$folders = Folder::get();
@@ -165,8 +207,8 @@ class ProductQuestion extends DataObject {
 		else {
 			$fields->removeByName("Folder");
 		}
-		if($products) {
-			$randomProduct = $products->First();
+		if($this->Products()->count()) {
+			$randomProduct = $this->Products()->First();
 			$fields->addFieldToTab("Root.Example", $this->getFieldForProduct($randomProduct));
 		}
 		$this->extend('updateCMSFields', $fields);
@@ -184,6 +226,7 @@ class ProductQuestion extends DataObject {
 			"InternalCode" => _t("ProductQuestion.INTERNALCODE", "Code used to identify question (not shown to customers)"),
 			"Question" => _t("ProductQuestion.QUESTION", "Question (e.g. what configuration do you prefer?)"),
 			"Label" => _t("ProductQuestion.LABEL", "Label (e.g. Your selected configuration)"),
+			"DefaultAnswer" => _t("ProductQuestion.DEFAULT_ANSWER", "Default Answer if no Answer has been provided.  Can be blank or, for example, tba."),
 			"Options" => _t("ProductQuestion.OPTIONS", "Predefined Options (leave blank for any option).  These must be comma separated (e.g. red, blue, yellow, orange)"),
 			"HasImages" => _t("ProductQuestion.HAS_IMAGES", "Has Images? .... Select this to link each option to an image (e.g. useful if you have colour swatches). Once selected and reloaded you will be able to select a folder from where to select the images"),
 			"FolderID" => _t("ProductQuestion.FOLDER_ID", "Select the folder in which the images live.  The images need to have the exact same file name as the options listed.  For example, if one of your options is 'red' then there should be a file in your folder called 'red.png' or 'red.jpg' or 'red.gif', the following filenames would not work: 'Red.png', 'red1.jpg', 'RED.gif', etc...  "),
@@ -231,19 +274,31 @@ class ProductQuestion extends DataObject {
 				return new ProductQuestionImageSelectorField($this->getFieldForProductName($product), $this->Question, $finalOptions, $value, $this->FolderID);
 			}
 			else {
-				return new DropdownField($this->getFieldForProductName($product), $this->Question, $finalOptions, $value);
+				$formFieldClass = $this->DefaultFormField;
+				if(!$formFieldClass) {
+					$formFieldClass = "DropdownField";
+				}
+				$finalOptions = array("" => _t("ProductQuestion.PLEASE_SELECT", " -- please select --")) + $finalOptions;
+				return $formFieldClass::create($this->getFieldForProductName($product), $this->Question, $finalOptions, $value);
 			}
 		}
 		else {
-			return new TextField($this->getFieldForProductName($product), $this->Question, $value);
+			$formFieldClass = $this->DefaultFormField;
+			if(!$formFieldClass) {
+				$formFieldClassd = "TextField";
+			}
+			return $formFieldClass::create($this->getFieldForProductName($product), $this->Question, $value);
 		}
 	}
-
 
 	public function getFieldForProductName(Product $product){
 		return "ProductQuestions[".$this->ID."]";
 	}
 
+	/**
+	 *
+	 * making sure all the data is clean
+	 */
 	function onBeforeWrite(){
 		parent::onBeforeWrite();
 		if(!$this->InternalCode) {
@@ -251,6 +306,20 @@ class ProductQuestion extends DataObject {
 		}
 		if(!$this->HasImages) {
 			$this->FolderID = 0;
+		}
+		if($this->Options) {
+			$optionsForFields = $this->Config()->get("available_form_fields_list");
+			if(!isset($optionsForFields[$this->DefaultFormField])) {
+				//get the first one if none is set.
+				$this->DefaultFormField = key($optionsForFields);
+			}
+		}
+		else {
+			$optionsForFields = $this->Config()->get("available_form_fields_free");
+			if(!isset($optionsForFields[$this->DefaultFormField])) {
+				//get the first one if none is set.
+				$this->DefaultFormField = key($optionsForFields);
+			}
 		}
 	}
 

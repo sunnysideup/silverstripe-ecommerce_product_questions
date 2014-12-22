@@ -10,18 +10,18 @@
 class ProductQuestion_OrderItemExtension extends DataExtension {
 
 	private static $db = array(
-				'ProductQuestionsAnswer' => 'HTMLText',
-				'JSONAnswers' => 'Text'
-			);
+		'ProductQuestionsAnswer' => 'HTMLText',
+		'JSONAnswers' => 'Text'
+	);
 
 	private static $casting = array(
-				'ProductQuestionsAnswerNOHTML' => 'Text',
-				'ConfigureLabel' => 'Varchar',
-				'ConfigureLink' => 'Varchar'
-			);
+		'ProductQuestionsAnswerNOHTML' => 'Text',
+		'ConfigureLabel' => 'Varchar',
+		'ConfigureLink' => 'Varchar'
+	);
 
 	/**
-	 *
+	 * casted variable
 	 * @return String
 	 */
 	function ProductQuestionsAnswerNOHTML(){return $this->owner->getProductQuestionsAnswerNOHTML();}
@@ -29,6 +29,16 @@ class ProductQuestion_OrderItemExtension extends DataExtension {
 		return strip_tags($this->owner->ProductQuestionsAnswer);
 	}
 
+	/**
+	 * can the order item be configured
+	 * @return Boolean
+	 */
+	public function canConfigure(){
+		if($this->owner->Order()->IsSubmitted()) {
+			return false;
+		}
+		return true;
+	}
 
 	/**
 	 * returns a link to configure an OrderItem
@@ -37,12 +47,7 @@ class ProductQuestion_OrderItemExtension extends DataExtension {
 	 */
 	function ConfigureLabel() {
 		Requirements::javascript("ecommerce_product_questions/javascript/EcomProductQuestions.js");
-		if($this->owner->Order()->IsSubmitted()) {
-			return "";
-		}
-		else {
-			return $this->owner->ProductQuestionsAnswerFormLabel();
-		}
+		return $this->owner->ProductQuestionsAnswerFormLabel();
 	}
 
 	/**
@@ -52,16 +57,11 @@ class ProductQuestion_OrderItemExtension extends DataExtension {
 	 */
 	function ConfigureLink() {
 		Requirements::javascript("ecommerce_product_questions/javascript/EcomProductQuestions.js");
-		if($this->owner->Order()->IsSubmitted()) {
-			return "";
-		}
-		else {
-			return $this->owner->ProductQuestionsAnswerFormLink();
-		}
+		return $this->owner->ProductQuestionsAnswerFormLink();
 	}
 
 	/**
-	 *returns the link to edit the products.
+	 * returns the link to edit the products.
 	 * @return String
 	 */
 	function ProductQuestionsAnswerFormLabel(){
@@ -76,9 +76,9 @@ class ProductQuestion_OrderItemExtension extends DataExtension {
 		}
 		return "";
 	}
-	
+
 	/**
-	 *returns the link to edit the products.
+	 * returns the link to edit the products.
 	 * @return String
 	 */
 	function ProductQuestionsAnswerFormLink(){
@@ -91,52 +91,67 @@ class ProductQuestion_OrderItemExtension extends DataExtension {
 		return "";
 	}
 
-	private static $has_product_questions = array();
+	/**
+	 * cache only!
+	 * @var Array
+	 */
+	private static $_has_product_questions = array();
 
 	/**
-	 *
+	 * Does the buyable associated with the orderitem
+	 * have product questions?
 	 * @return Boolean
 	 */
 	function HasProductQuestions(){
-		if(!isset(self::$has_product_questions[$this->owner->ID])) {
+		if(!isset(self::$_has_product_questions[$this->owner->ID])) {
 			$productQuestions = $this->owner->ProductQuestions();
 			if($productQuestions && $productQuestions->count()) {
-				self::$has_product_questions[$this->owner->ID] = true;
+				self::$_has_product_questions[$this->owner->ID] = true;
 			}
 			else {
-				self::$has_product_questions[$this->owner->ID] = false;
+				self::$_has_product_questions[$this->owner->ID] = false;
 			}
 		}
-		return self::$has_product_questions[$this->owner->ID];
+		return self::$_has_product_questions[$this->owner->ID];
 	}
+
+	/**
+	 * cache only!
+	 * @var Array
+	 */
+	private static $_product_questions = array();
 
 	/**
 	 *
-	 * @return DataObjectSet | Null
+	 * @return DataList | Null
 	 */
 	function ProductQuestions(){
-		if($buyable = $this->owner->productQuestionBuyable()) {
-			return $buyable->ProductQuestions();
+		if(!isset(self::$_product_questions[$this->owner->ID])) {
+			if($buyable = $this->owner->productQuestionBuyable()) {
+				self::$_product_questions[$this->owner->ID] = $buyable->ProductQuestions();
+			}
+			else {
+				self::$_product_questions[$this->owner->ID] = null;
+			}
 		}
-		return null;
+		return self::$_product_questions[$this->owner->ID];
 	}
 
 	/**
-	 * product relating to an orderItem
-	 * @var Product
+	 * cache only!
+	 * @var Array
 	 */
-	private static $product_question_product = null;
-
+	private static $_product_question_product = null;
 
 	/**
 	 *
 	 * @return Product | Null
 	 */
 	public function productQuestionBuyable(){
-		if(!isset(self::$product_question_product[$this->owner->ID])) {
-			self::$product_question_product[$this->owner->ID] = $this->owner->Buyable();
+		if(!isset(self::$_product_question_product[$this->owner->ID])) {
+			self::$_product_question_product[$this->owner->ID] = $this->owner->Buyable();
 		}
-		return self::$product_question_product[$this->owner->ID];
+		return self::$_product_question_product[$this->owner->ID];
 	}
 
 	/**
@@ -161,11 +176,11 @@ class ProductQuestion_OrderItemExtension extends DataExtension {
 			);
 			$values = array();
 			if($this->owner->JSONAnswers) {
-				$values = @json_decode($this->owner->JSONAnswers);
+				$values = json_decode($this->owner->JSONAnswers);
 			}
 			foreach($productQuestions as $productQuestion) {
-				$value = empty($values[$productQuestion->ID]) ? null : $values[$productQuestion->ID];
-				$fields->push($productQuestion->getFieldForProduct($buyable, $value)); //TODO: perhaps use a dropdown instead (elimiates need to use keyboard)
+				$value = empty($values->{$productQuestion->ID}) ? null : $values->{$productQuestion->ID};
+				$fields->push($productQuestion->getFieldForProduct($buyable, $value)); //TODO: perhaps use a dropdown instead (eliminates need to use keyboard)
 			}
 			$actions = new FieldList(
 				array(
@@ -181,10 +196,35 @@ class ProductQuestion_OrderItemExtension extends DataExtension {
 
 	/**
 	 *
+	 * @return DataList | NULL
+	 */
+	public function ProductQuestionsAnswers(){
+		if($this->owner->HasProductQuestions()) {
+			$al = new ArrayList();
+			$values = json_decode($this->owner->JSONAnswers);
+			if($questions = $this->owner->ProductQuestions()) {
+				foreach($questions as $question) {
+					$newQuestion = clone $question;
+					$answer = empty($values->{$question->ID}) ? null : $values->{$question->ID};
+					if($answer) {
+						$newQuestion->Answer = $answer;
+					}
+					else {
+						$newQuestion->Answer = $newQuestion->DefaultAnswer;
+					}
+					$al->push($newQuestion);
+				}
+				return $al;
+			}
+		}
+	}
+
+	/**
+	 *
 	 * @param Array $answers
 	 * 	ID = ProductQuestion.ID
 	 * 	"ID" => "Answer" (String)
-	 *
+	 * @param Boolean $write
 	 */
 	function updateOrderItemWithProductAnswers($answers, $write = true){
 		if($this->owner->canEdit()) {
@@ -193,16 +233,12 @@ class ProductQuestion_OrderItemExtension extends DataExtension {
 				foreach($answers as $productQuestionID => $productQuestionAnswer) {
 					$question = ProductQuestion::get()->byID(intval($productQuestionID));
 					if($question) {
-						$this->owner->ProductQuestionsAnswer .= "
-							<span class=\"productQuestion\">
-								<strong class=\"productQuestionsLabel\">".$question->Label."</strong>:
-								<em class=\"productQuestionsAnswer\">".$productQuestionAnswer."</em>
-							</span>";
 					}
 					//$form->addErrorMessage("ProductQuestions", $message, $type);
 				}
+				$this->owner->ProductQuestionsAnswer = $this->owner->renderWith("ProductQuestionsAnswers");
 			}
-			$this->owner->JSONAnswers = Convert::raw2json($answers);
+			$this->owner->JSONAnswers = json_encode($answers);
 			if($write) {
 				$this->owner->write();
 			}

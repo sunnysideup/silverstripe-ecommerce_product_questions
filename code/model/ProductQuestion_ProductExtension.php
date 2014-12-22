@@ -14,13 +14,18 @@ class ProductQuestion_ProductDecorator extends DataExtension {
 
 	private static $belongs_many_many = array('ProductQuestions' => 'ProductQuestion');
 
-
 	function updateCMSFields(FieldList $fields) {
 		$productQuestions = ProductQuestion::get();
 		if($productQuestions->count()){
-			$productQuestionsArray = $productQuestions->map("ID", "FullName")->toArray();
-			$fields->addFieldToTab("Root.Questions", new TextField("ConfigureLabel", "Configure Link Label"));
-			$fields->addFieldToTab("Root.Questions", new CheckboxSetField("ProductQuestions", "Additional Questions", $productQuestionsArray));
+			$fields->addFieldToTab("Root.Questions", new TextField("ConfigureLabel", _t("ProductQuestion.CONFIGURE_LINK_LABEL", "Configure link label")));
+			$fields->addFieldToTab("Root.Questions",
+				$gridField = new GridField(
+					'ProductQuestions',
+					_t("ProductQuestion.PLURAL_NAME", "Product Questions"),
+					$this->owner->ProductQuestions(),
+					GridFieldConfig_RelationEditor::create()
+				)
+			);
 		}
 	}
 
@@ -34,14 +39,27 @@ class ProductQuestion_ProductDecorator extends DataExtension {
 	 * @return String
 	 */
 	public function CustomConfigureLabel(){
-		if($this->owner->ProductQuestions()) {
-			if($this->owner->ProductQuestions()->count()) {
-				if($this->owner->ConfigureLabel) {
-					return $this->owner->ConfigureLabel;
-				}
+		if($this->HasProductQuestions()) {
+			if($this->owner->ConfigureLabel) {
+				return $this->owner->ConfigureLabel;
+			}
+			else {
 				return _t("ProductQuestion.CONFIGURE", "Configure");
 			}
 		}
+	}
+
+	/**
+	 * Does this buyable have product questions?
+	 * @return Boolean
+	 */
+	public function HasProductQuestions(){
+		if($this->owner->ProductQuestions()) {
+			if($this->owner->ProductQuestions()->count()) {
+				return true;
+			}
+		}
+		return true;
 	}
 
 }
@@ -132,10 +150,10 @@ class ProductQuestion_ProductControllerDecorator extends Extension {
 			);
 		}
 		if(isset($data["BackURL"])){
-			$this->redirect($data["BackURL"]);
+			$this->owner->redirect($data["BackURL"]);
 		}
 		else {
-			$this->redirectBack();
+			$this->owner->redirectBack();
 		}
 	}
 

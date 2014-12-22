@@ -5,23 +5,30 @@
 (function($){
 	$(document).ready(
 		function() {
-			EcomProductQuantity.init();
+			EcomProductQuestions.init();
 		}
 	);
 })(jQuery);
 
-EcomProductQuantity = {
+EcomProductQuestions = {
 
 	selectVariationSelector: '.configureLink',
 
 	colorboxDialogOptions: {
-		iframe: false
+		iframe: false,
+		loadingClass: "loading",
+		onComplete: function (event) {
+			EcomCart.reinit();
+		},
+		title: function(){
+			return jQuery(this).text();
+		}
 	},
 
 
 	init: function(){
 		jQuery(".configureLink").colorbox(
-			EcomProductQuantity.colorboxDialogOptions
+			EcomProductQuestions.colorboxDialogOptions
 		).removeAttr("target");
 	}
 

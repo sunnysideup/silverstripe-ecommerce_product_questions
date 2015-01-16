@@ -19,14 +19,14 @@ class ProductQuestion_ProductDecorator extends DataExtension {
 		if($productQuestions->count()){
 			$fields->addFieldToTab("Root.Questions", new TextField("ConfigureLabel", _t("ProductQuestion.CONFIGURE_LINK_LABEL", "Configure link label")));
 			$fields->addFieldToTab("Root.Questions",
-				$gridField = new GridField(
+				$gridField = new CheckboxSetField(
 					'ProductQuestions',
 					_t("ProductQuestion.PLURAL_NAME", "Product Questions"),
-					$this->owner->ProductQuestions(),
-					GridFieldConfig_RelationEditor::create()
+					ProductQuestion::get()->map("ID", "Title")->toArray()
 				)
 			);
 		}
+		$fields->addFieldToTab("Root.Questions", new LiteralField("EditProductQuestions", "<h2><a href=\"/admin/product-config/ProductQuestion/\">"._t("ProductQuestion.EDIT_PRODUCT_QUESTIONS", "Edit Product Questions")."</a></h2>"));
 	}
 
 	function ProductQuestionsAnswerFormLink($id = 0){

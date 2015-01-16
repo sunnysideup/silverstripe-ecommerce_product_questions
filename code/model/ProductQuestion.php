@@ -169,7 +169,7 @@ class ProductQuestion extends DataObject {
 			$fields->removeFieldFromTab("DefaultFormField", "Root.Main");
 		}
 		$productFieldTitle = _t("ProductQuestion.PRODUCTS", "Products showing this question");
-		if(Product::get()->count() < $this->Config->get("max_products_for_gridfield")) {
+		if(Product::get()->count() < $this->Config()->get("max_products_for_gridfield")) {
 			$productField = new CheckboxSex("Products", $productFieldTitle, Products::get()->map("ID", "FullTitle")->toArray());
 		}
 		else {

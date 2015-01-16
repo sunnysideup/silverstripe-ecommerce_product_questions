@@ -107,7 +107,7 @@ class ProductQuestion extends DataObject {
 	 *
 	 * @var Int
 	 */
-	private static $max_products_for_gridfield = 300;
+	private static $max_products_for_checkbox_set_field = 300;
 
 	/**
 	 * Standard SS variable.
@@ -169,8 +169,8 @@ class ProductQuestion extends DataObject {
 			$fields->removeFieldFromTab("DefaultFormField", "Root.Main");
 		}
 		$productFieldTitle = _t("ProductQuestion.PRODUCTS", "Products showing this question");
-		if(Product::get()->count() < $this->Config()->get("max_products_for_gridfield")) {
-			$productField = new CheckboxSex("Products", $productFieldTitle, Products::get()->map("ID", "FullTitle")->toArray());
+		if(Product::get()->count() < $this->Config()->get("max_products_for_checkbox_set_field")) {
+			$productField = new CheckboxSetField("Products", $productFieldTitle, Product::get()->map("ID", "FullName")->toArray());
 		}
 		else {
 			$productField = new GridField(

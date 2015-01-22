@@ -245,14 +245,10 @@ class ProductQuestion extends DataObject {
 			"ProductQuestion.FOLDER_EXPLANATION",
 			"Select this to link each option to an image (e.g. useful if you have colour swatches).
 				Once selected and saved you will be able to select a folder from where to select the images.");
-		$fields->addFieldToTab(
-			"Root.Main",
-			new LiteralField(
-				"FolderExplanation",
-				"<p class=\"\"><em>$folderExplanation</em></p>"
-			),
-			"HasImages"
-		);
+		$field = $fields->dataFieldByName("HasImages");
+		if($field) {
+			$field->setDescription($folderExplanation);
+		}
 		$this->extend('updateCMSFields', $fields);
 		return $fields;
 	}

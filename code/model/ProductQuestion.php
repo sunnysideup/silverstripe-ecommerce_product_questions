@@ -156,7 +156,7 @@ class ProductQuestion extends DataObject {
 	function getCMSFields() {
 		$fields = parent::getCMSFields();
 		if(!$this->HasImages) {
-			$fields->replaceField(
+			$fields->addFieldToTab(
 				"DefaultFormField",
 				new OptionSetField(
 					"DefaultFormField",
@@ -181,18 +181,17 @@ class ProductQuestion extends DataObject {
 			);
 		}
 		$fields->addFieldToTab("Root.Products", $productField);
-		$fields->addFieldToTab("Root.Main", new HeaderField("Images", _t("ProductQuestion.IMAGES", "Images"), 2), "HasImages");
 		if($this->HasImages) {
 			$folders = Folder::get();
 			if($folders->count()) {
 				$folderMap = $folders->map("ID", "Title")->toArray();
 				$folders = null;
-				$labelArray = $this->customFieldLabels();
-				$labelArray = $labelArray["FolderID"];
-				$fields->replaceField(
-					"Folder",
-					new TreeDropdownField("FolderID", _t("ProductQuestion.FOLDER", "Folder"), "Folder")
+				$fields->removeFieldFromTab("Root.Main", "Folder");
+				$fields->addFieldToTab(
+					"Root.Images",
+					$treeDropdownField = new TreeDropdownField("FolderID", _t("ProductQuestion.FOLDER", "Folder"), "Folder")
 				);
+				$treeDropdownField->setRightTitle(_t("ProductQuestion.FOLDER_ID", "Select the folder in which the images live.  The images need to have the exact same file name as the options listed.  For example, if one of your options is 'red' then there should be a file in your folder called 'red.png' or 'red.jpg' or 'red.gif', the following filenames would not work: 'Red.png', 'red1.jpg', 'RED.gif', etc...  "));
 			}
 			if($this->FolderID) {
 				$imagesInFolder = Image::get()->filter(array("ParentID" => $this->FolderID));
@@ -249,42 +248,26 @@ class ProductQuestion extends DataObject {
 		if($field) {
 			$field->setDescription($folderExplanation);
 		}
+		$fields->addFieldToTab("Root.Images", $field, "FolderID");
+
 		$this->extend('updateCMSFields', $fields);
+
+		//custom field labels
+		$internalCodeField = $fields->dataFieldByName("InternalCode");
+		$internalCodeField->setRightTitle(_t("ProductQuestion.INTERNALCODE", "Code used to identify question (not shown to customers)"));
+		$questionField = $fields->dataFieldByName("Question");
+		$questionField->setRightTitle(_t("ProductQuestion.QUESTION", "Question (e.g. what configuration do you prefer?)"));
+		$labelField = $fields->dataFieldByName("Label");
+		$labelField->setRightTitle(_t("ProductQuestion.LABEL", "Label (e.g. Your selected configuration)"));
+		$defaultAnswerField = $fields->dataFieldByName("DefaultAnswer");
+		$defaultAnswerField->setRightTitle(_t("ProductQuestion.DEFAULT_ANSWER", "Default Answer if no Answer has been provided.  Can be blank or, for example, tba."));
+		$optionsField = $fields->dataFieldByName("Options");
+		$optionsField->setRightTitle(_t("ProductQuestion.OPTIONS", "Predefined Options (leave blank for any option).  These must be comma separated (e.g. red, blue, yellow, orange)"));
+
 		return $fields;
 	}
 
 
-	/**
-	 * definition of field lables
-	 * TODO: is this a common SS method?
-	 * @return Array
-	 */
-	function customFieldLabels(){
-		$newLabels = array(
-			"InternalCode" => _t("ProductQuestion.INTERNALCODE", "Code used to identify question (not shown to customers)"),
-			"Question" => _t("ProductQuestion.QUESTION", "Question (e.g. what configuration do you prefer?)"),
-			"Label" => _t("ProductQuestion.LABEL", "Label (e.g. Your selected configuration)"),
-			"DefaultAnswer" => _t("ProductQuestion.DEFAULT_ANSWER", "Default Answer if no Answer has been provided.  Can be blank or, for example, tba."),
-			"Options" => _t("ProductQuestion.OPTIONS", "Predefined Options (leave blank for any option).  These must be comma separated (e.g. red, blue, yellow, orange)"),
-			"HasImages" => _t("ProductQuestion.HAS_IMAGES", "Has Images? "),
-			"FolderID" => _t("ProductQuestion.FOLDER_ID", "Select the folder in which the images live.  The images need to have the exact same file name as the options listed.  For example, if one of your options is 'red' then there should be a file in your folder called 'red.png' or 'red.jpg' or 'red.gif', the following filenames would not work: 'Red.png', 'red1.jpg', 'RED.gif', etc...  "),
-		);
-		return $newLabels;
-	}
-
-
-	/**
-	 * standard SS method for decorators.
-	 * @param Array - $fields: array of fields to start with
-	 * @return null ($fields variable is automatically updated)
-	 */
-	function fieldLabels($includerelations = true) {
-		$defaultLabels = parent::fieldLabels();
-		$newLabels = $this->customFieldLabels();
-		$labels = array_merge($defaultLabels, $newLabels);
-		$this->extend('updateFieldLabels', $labels);
-		return $labels;
-	}
 
 	/**
 	 * casted variable

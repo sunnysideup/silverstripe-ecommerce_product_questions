@@ -155,6 +155,7 @@ class ProductQuestion extends DataObject {
 	 */
 	function getCMSFields() {
 		$fields = parent::getCMSFields();
+		$fields->addFieldToTab("Root.Images", new CheckboxField("HasImages", _t("ProductQuestion.HAS_IMAGES", "This question makes use of images")));
 		if(!$this->HasImages) {
 			$fields->addFieldToTab(
 				"Root.DefaultFormField",
@@ -248,7 +249,6 @@ class ProductQuestion extends DataObject {
 		if($field) {
 			$field->setDescription($folderExplanation);
 		}
-		$fields->addFieldToTab("Root.Images", $field, "FolderID");
 
 		$this->extend('updateCMSFields', $fields);
 
@@ -263,7 +263,6 @@ class ProductQuestion extends DataObject {
 		$defaultAnswerField->setRightTitle(_t("ProductQuestion.DEFAULT_ANSWER", "Default Answer if no Answer has been provided.  Can be blank or, for example, tba."));
 		$optionsField = $fields->dataFieldByName("Options");
 		$optionsField->setRightTitle(_t("ProductQuestion.OPTIONS", "Predefined Options (leave blank for any option).  These must be comma separated (e.g. red, blue, yellow, orange)"));
-
 		return $fields;
 	}
 

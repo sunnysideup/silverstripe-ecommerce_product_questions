@@ -157,7 +157,7 @@ class ProductQuestion extends DataObject {
 		$fields = parent::getCMSFields();
 		if(!$this->HasImages) {
 			$fields->addFieldToTab(
-				"DefaultFormField",
+				"Root.DefaultFormField",
 				new OptionSetField(
 					"DefaultFormField",
 					_t("ProductQuestion.DEFAULTFORMFIELD", "Field type to use"),

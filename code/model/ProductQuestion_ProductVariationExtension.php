@@ -93,7 +93,7 @@ class ProductQuestion_ProductVariationDecorator extends DataExtension {
 	 * saves the list of product questions
 	 * @var NULL | DataList
 	 */
-	private static $_product_questions_cache = array;
+	private static $_product_questions_cache = array();
 
 	/**
 	 * returns the applicable Product Questions

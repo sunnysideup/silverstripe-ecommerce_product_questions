@@ -93,14 +93,14 @@ class ProductQuestion_ProductVariationDecorator extends DataExtension {
 	 * saves the list of product questions
 	 * @var NULL | DataList
 	 */
-	private static $_product_questions_cache = null;
+	private static $_product_questions_cache = array;
 
 	/**
 	 * returns the applicable Product Questions
 	 * @return DataList
 	 */
 	function ProductQuestions(){
-		if(self::$_product_questions_cache == null) {
+		if(!isset(self::$_product_questions_cache[$this->owner->ID])) {
 			$product = $this->owner->Product();
 			$productQuestions = $product->ProductQuestions();
 			$productQuestionsArray = array(0 => 0);
@@ -122,9 +122,9 @@ class ProductQuestion_ProductVariationDecorator extends DataExtension {
 			if(!count($productQuestionsArray)) {
 				$productQuestionsArray = array(0 => 0);
 			}
-			self::$_product_questions_cache = ProductQuestion::get()->filter(array("ID" => $productQuestionsArray));
+			self::$_product_questions_cache[$this->owner->ID] = ProductQuestion::get()->filter(array("ID" => $productQuestionsArray));
 		}
-		return self::$_product_questions_cache;
+		return self::$_product_questions_cache[$this->owner->ID];
 	}
 
 	/**

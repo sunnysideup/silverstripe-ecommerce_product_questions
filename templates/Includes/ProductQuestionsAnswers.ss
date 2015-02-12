@@ -1,5 +1,5 @@
 <% if ProductQuestionsAnswers %>
-	<ul class="productQuestionsAnswer">
+	<ul class="productQuestionsAnswers">
 		<% loop ProductQuestionsAnswers %>
 		<li>
 			<span class="productQuestion">

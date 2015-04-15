@@ -178,7 +178,7 @@ class ProductQuestion extends DataObject {
 				'Products',
 				_t("ProductQuestion.PRODUCTS", "Products showing this question"),
 				$this->Products(),
-				GridFieldEditOriginalPageConfig::create()
+				GridFieldEditOriginalPageConfigWithDelete::create()
 			);
 		}
 		$fields->addFieldToTab("Root.Products", $productField);

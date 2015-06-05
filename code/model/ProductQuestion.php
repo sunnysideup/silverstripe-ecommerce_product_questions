@@ -182,6 +182,15 @@ class ProductQuestion extends DataObject {
 			);
 		}
 		$fields->addFieldToTab("Root.Products", $productField);
+		foreach($this->Products() as $product) {
+			$fields->addFieldToTab(
+				"Root.Products",
+				new LiteralField(
+					"Product".$product->ID,
+					"<h5><a href=\"".$product->CMSEditLink()."\">"._t("ProductQuestion.BACK_TO", "Edit ")." ".$product->Title."</a></h5>"
+				)
+			);
+		}
 		if($this->HasImages) {
 			$folders = Folder::get();
 			if($folders->count()) {
@@ -192,7 +201,22 @@ class ProductQuestion extends DataObject {
 					"Root.Images",
 					$treeDropdownField = new TreeDropdownField("FolderID", _t("ProductQuestion.FOLDER", "Folder"), "Folder")
 				);
-				$treeDropdownField->setRightTitle(_t("ProductQuestion.FOLDER_ID", "Select the folder in which the images live.  The images need to have the exact same file name as the options listed.  For example, if one of your options is 'red' then there should be a file in your folder called 'red.png' or 'red.jpg' or 'red.gif', the following filenames would not work: 'Red.png', 'red1.jpg', 'RED.gif', etc...  "));
+				$treeDropdownFieldRightTitle = _t(
+					"ProductQuestion.FOLDER_ID",
+					"Select the folder in which the images live.
+					<br />
+					<strong>
+						The images need to have the exact same file name as the options listed.
+						For example, if one of your options is 'red' then there should be a file in your folder called 'red.png' or 'red.jpg' or 'red.gif',
+						the following filenames would not work: 'Red.png', 'red1.jpg', 'RED.gif', etc...
+					</strong>");
+				$folder = Folder::get()->byID($this->FolderID);
+				if($folder) {
+					$treeDropdownFieldRightTitle .= "
+						<br /><a href=\"admin/assets/show/".$folder->ID."/\">"._t("ProductQuestion.OPEN", "Open")." ".$folder->Title."</a>
+						<br /><a href=\"admin/assets/add/?ID".$folder->ID."/\">"._t("ProductQuestion.ADD_IMAGES_TO", "Add images to")." ".$folder->Title."</a>";
+				}
+				$treeDropdownField->setRightTitle($treeDropdownFieldRightTitle);
 			}
 			if($this->FolderID) {
 				$imagesInFolder = Image::get()->filter(array("ParentID" => $this->FolderID));
@@ -243,8 +267,8 @@ class ProductQuestion extends DataObject {
 		}
 		$folderExplanation = _t(
 			"ProductQuestion.FOLDER_EXPLANATION",
-			"Select this to link each option to an image (e.g. useful if you have colour swatches).
-				Once selected and saved you will be able to select a folder from where to select the images.");
+			"Tick the box to link each option to an image (e.g. useful if you have colour swatches).
+				Once ticked and the question is saved you will be able to select a folder from where to select the images.");
 		$field = $fields->dataFieldByName("HasImages");
 		if($field) {
 			$field->setDescription($folderExplanation);
@@ -350,6 +374,20 @@ class ProductQuestion extends DataObject {
 				$this->DefaultFormField = key($optionsForFields);
 			}
 		}
+	}
+
+
+	/**
+	 * link to edit the record
+	 * @param String | Null $action - e.g. edit
+	 * @return String
+	 */
+	public function CMSEditLink($action = null) {
+		return Controller::join_links(
+			Director::baseURL(),
+			"/admin/product-config/".$this->ClassName."/EditForm/field/".$this->ClassName."/item/".$this->ID."/edit",
+			$action
+		);
 	}
 
 }

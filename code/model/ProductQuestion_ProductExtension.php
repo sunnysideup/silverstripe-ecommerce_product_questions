@@ -27,6 +27,15 @@ class ProductQuestion_ProductDecorator extends DataExtension {
 			);
 		}
 		$fields->addFieldToTab("Root.Questions", new LiteralField("EditProductQuestions", "<h2><a href=\"/admin/product-config/ProductQuestion/\">"._t("ProductQuestion.EDIT_PRODUCT_QUESTIONS", "Edit Product Questions")."</a></h2>"));
+		foreach($this->owner->ProductQuestions() as $productQuestion) {
+			$fields->addFieldToTab(
+				"Root.Questions",
+				new LiteralField(
+					"EditProductQuestion".$productQuestion->ID,
+					"<h5><a href=\"".$productQuestion->CMSEditLink()."\">"._t("ProductQuestion.EDIT", "Edit")." ".$productQuestion->Title."</a></h5>"
+				)
+			);
+		}
 	}
 
 	function ProductQuestionsAnswerFormLink($id = 0){

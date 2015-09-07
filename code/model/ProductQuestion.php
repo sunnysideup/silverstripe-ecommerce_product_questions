@@ -87,6 +87,7 @@ class ProductQuestion extends DataObject {
 	 */
 	private static $available_form_fields_free = array(
 		"TextField" => "Text Field",
+		"TextareaField" => "Text Field with several lines",
 		"DateField" => "Date Field",
 		"EmailField" => "Email Field"
 	);

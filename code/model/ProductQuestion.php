@@ -172,7 +172,10 @@ class ProductQuestion extends DataObject {
 			$fields->removeFieldFromTab("Root.Main", "DefaultFormField");
 		}
 		$productFieldTitle = _t("ProductQuestion.PRODUCTS", "Products showing this question");
-		if(Product::get()->count() < $this->Config()->get("max_products_for_checkbox_set_field")) {
+		if($this->ApplyToAllProducts) {
+			$productField = new HiddenField("ProductsToIgnore");
+		}
+		elseif(Product::get()->count() < $this->Config()->get("max_products_for_checkbox_set_field")) {
 			$productField = new CheckboxSetField("Products", $productFieldTitle, Product::get()->map("ID", "FullName")->toArray());
 		}
 		else {
@@ -184,14 +187,16 @@ class ProductQuestion extends DataObject {
 			);
 		}
 		$fields->addFieldToTab("Root.Products", $productField);
-		foreach($this->Products() as $product) {
-			$fields->addFieldToTab(
-				"Root.Products",
-				new LiteralField(
-					"Product".$product->ID,
-					"<h5><a href=\"".$product->CMSEditLink()."\">"._t("ProductQuestion.BACK_TO", "Edit ")." ".$product->Title."</a></h5>"
-				)
-			);
+		if(!$this->ApplyToAllProducts) {
+			foreach($this->Products() as $product) {
+				$fields->addFieldToTab(
+					"Root.Products",
+					new LiteralField(
+						"Product".$product->ID,
+						"<h5><a href=\"".$product->CMSEditLink()."\">"._t("ProductQuestion.BACK_TO", "Edit ")." ".$product->Title."</a></h5>"
+					)
+				);
+			}
 		}
 		if($this->HasImages) {
 			$folders = Folder::get();
@@ -378,6 +383,12 @@ class ProductQuestion extends DataObject {
 		}
 	}
 
+	function onAfterWrite(){
+		parent::onAfterWrite();
+		if($this->ApplyToAllProducts) {
+			$this->Products()->removeAll();
+		}
+	}
 
 	/**
 	 * link to edit the record

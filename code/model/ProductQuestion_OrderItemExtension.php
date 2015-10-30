@@ -123,12 +123,20 @@ class ProductQuestion_OrderItemExtension extends DataExtension {
 
 	/**
 	 *
+	 * @alias for ProductQuestions
+	 */ 
+	function ApplicableProductQuestions(){
+		return $this->ProductQuestions();
+	}
+	
+	/**
+	 *
 	 * @return DataList | Null
 	 */
 	function ProductQuestions(){
 		if(!isset(self::$_product_questions[$this->owner->ID])) {
 			if($buyable = $this->owner->productQuestionBuyable()) {
-				self::$_product_questions[$this->owner->ID] = $buyable->ProductQuestions();
+				self::$_product_questions[$this->owner->ID] = $buyable->ApplicableProductQuestions();
 			}
 			else {
 				self::$_product_questions[$this->owner->ID] = null;

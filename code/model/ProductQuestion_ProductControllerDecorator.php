@@ -58,7 +58,7 @@ class ProductQuestion_ProductControllerDecorator extends Extension {
 	function ProductQuestionsAnswerFormFields(){
 		$fieldSet = new FieldList();
 		$product = $this->owner->dataRecord;
-		$productQuestions = $product->ProductQuestions();
+		$productQuestions = $product->ApplicableProductQuestions();
 		if($productQuestions) {
 			foreach($productQuestions as $productQuestion) {
 				$fieldSet->push($productQuestion->getFieldForProduct($product));

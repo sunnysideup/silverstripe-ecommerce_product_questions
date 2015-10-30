@@ -27,7 +27,7 @@ class ProductQuestion_ProductDecorator extends DataExtension {
 			);
 		}
 		$fields->addFieldToTab("Root.Questions", new LiteralField("EditProductQuestions", "<h2><a href=\"/admin/product-config/ProductQuestion/\">"._t("ProductQuestion.EDIT_PRODUCT_QUESTIONS", "Edit Product Questions")."</a></h2>"));
-		foreach($this->owner->ProductQuestions() as $productQuestion) {
+		foreach($this->owner->ApplicableProductQuestions() as $productQuestion) {
 			$fields->addFieldToTab(
 				"Root.Questions",
 				new LiteralField(
@@ -63,12 +63,26 @@ class ProductQuestion_ProductDecorator extends DataExtension {
 	 * @return Boolean
 	 */
 	public function HasProductQuestions(){
-		if($this->owner->ProductQuestions()) {
-			if($this->owner->ProductQuestions()->count()) {
+		if($applicable = $this->owner->ApplicableProductQuestions()) {
+			if($applicable->count()) {
 				return true;
 			}
 		}
-		return true;
+		return false;
+	}
+
+	function ApplicableProductQuestions(){
+		$productQuestions = $this->owner->ProductQuestions();
+		$productQuestionsArray = array(0 => 0);
+		if($productQuestions && $productQuestions->count()) {
+			$productQuestionsArray = $productQuestions->map("ID", "ID")->toArray();
+		}		
+		$productQuestionsForAll = ProductQuestion::get()->filter(array("ApplyToAllProducts" => 1));
+		if($productQuestionsForAll && $productQuestionsForAll->count()) {
+			$productQuestionsForAllArray = $productQuestionsForAll->map("ID", "ID")->toArray();
+			$productQuestionsArray += $productQuestionsForAllArray;
+		}
+		return ProductQuestion::get()->filter(array("ID" => $productQuestionsArray));
 	}
 
 }

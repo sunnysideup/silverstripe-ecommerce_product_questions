@@ -20,7 +20,7 @@ class ProductQuestion_ProductVariationDecorator extends DataExtension {
 	function updateCMSFields(FieldList $fields) {
 		parent::updateCMSFields($fields);
 		if(ProductQuestion::get()->count()) {
-			$productQuestionsDefault = $this->owner->Product()->ProductQuestions();
+			$productQuestionsDefault = $this->owner->Product()->ApplicableProductQuestions();
 			$productQuestionsDefaultArray = array(0 => 0);
 			if($productQuestionsDefault && $productQuestionsDefault->count()){
 				$productQuestionsDefaultArray = $productQuestionsDefault->map("ID", "FullName")->toArray();
@@ -53,7 +53,7 @@ class ProductQuestion_ProductVariationDecorator extends DataExtension {
 	 */
 	function ProductQuestionsAnswerFormFields(){
 		$fieldSet = new FieldList();
-		$productQuestions = $this->ProductQuestions();
+		$productQuestions = $this->owner->ApplicableProductQuestions();
 		if($productQuestions && $productQuestions->count()) {
 			foreach($productQuestions as $productQuestion) {
 				$fieldSet->push($productQuestion->getFieldForProduct($this));
@@ -96,13 +96,21 @@ class ProductQuestion_ProductVariationDecorator extends DataExtension {
 	private static $_product_questions_cache = array();
 
 	/**
+	 *
+	 * @alais for ProductQuestions
+	 */ 
+	function ApplicableProductQuestions() {
+		return $this->ProductQuestions();
+	}
+
+	/**
 	 * returns the applicable Product Questions
 	 * @return DataList
 	 */
 	function ProductQuestions(){
 		if(!isset(self::$_product_questions_cache[$this->owner->ID])) {
 			$product = $this->owner->Product();
-			$productQuestions = $product->ProductQuestions();
+			$productQuestions = $product->ApplicableProductQuestions();
 			$productQuestionsArray = array(0 => 0);
 			if($productQuestions && $productQuestions->count()) {
 				$productQuestionsArray = $productQuestions->map("ID", "ID")->toArray();
@@ -132,8 +140,8 @@ class ProductQuestion_ProductVariationDecorator extends DataExtension {
 	 * @return Boolean
 	 */
 	public function HasProductQuestions(){
-		if($this->owner->ProductQuestions()) {
-			if($this->owner->ProductQuestions()->count()) {
+		if($applicable = $this->owner->ApplicableProductQuestions()) {
+			if($applicable->count()) {
 				return true;
 			}
 		}

@@ -18,7 +18,8 @@ class ProductQuestion extends DataObject {
 		'DefaultAnswer' => 'Varchar(150)',
 		'DefaultFormField' => 'Varchar(255)',
 		'Options' => 'Text',
-		"HasImages" => "Boolean"
+		"HasImages" => "Boolean",
+		"ApplyToAllProducts" => "Boolean"
 	);
 
 	/**

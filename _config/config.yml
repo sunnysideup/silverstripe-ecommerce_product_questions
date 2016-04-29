@@ -9,6 +9,10 @@ Product_Controller:
   extensions:
     - ProductQuestion_ProductControllerDecorator
 
+Order:
+  extensions:
+    - ProductQuestion_OrderExtension
+
 OrderItem:
   extensions:
     - ProductQuestion_OrderItemExtension

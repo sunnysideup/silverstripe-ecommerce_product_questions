@@ -14,6 +14,7 @@ class ProductQuestion extends DataObject {
 	private static $db = array(
 		'InternalCode' => 'Varchar(30)',
 		'Question' => 'Varchar(255)',
+		'AnswerRequired' => 'Boolean',
 		'Label' => 'Varchar(100)',
 		'DefaultAnswer' => 'Varchar(150)',
 		'DefaultFormField' => 'Varchar(255)',
@@ -158,6 +159,7 @@ class ProductQuestion extends DataObject {
 	function getCMSFields() {
 		$fields = parent::getCMSFields();
 		$fields->addFieldToTab("Root.Images", new CheckboxField("HasImages", _t("ProductQuestion.HAS_IMAGES", "This question makes use of images")));
+		$fields->addFieldToTab("Root.Products", new CheckboxField("ApplyToAllProducts", _t("ProductQuestion.APPLY_TO_ALL_PRODUCTS", "Apply to all products ...")));
 		if(!$this->HasImages) {
 			$fields->addFieldToTab(
 				"Root.DefaultFormField",
@@ -173,7 +175,8 @@ class ProductQuestion extends DataObject {
 		}
 		$productFieldTitle = _t("ProductQuestion.PRODUCTS", "Products showing this question");
 		if($this->ApplyToAllProducts) {
-			$productField = new HiddenField("ProductsToIgnore");
+			$productField = new HiddenField("Products");
+                        
 		}
 		elseif(Product::get()->count() < $this->Config()->get("max_products_for_checkbox_set_field")) {
 			$productField = new CheckboxSetField("Products", $productFieldTitle, Product::get()->map("ID", "FullName")->toArray());

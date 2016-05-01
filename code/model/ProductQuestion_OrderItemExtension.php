@@ -10,42 +10,46 @@
 class ProductQuestion_OrderItemExtension extends DataExtension {
 
         private static $db = array(
-                'ProductQuestionsAnswer' => 'HTMLText',
-                'JSONAnswers' => 'Text'
+            'ProductQuestionsAnswer' => 'HTMLText',
+            'JSONAnswers' => 'Text'
         );
 
         private static $casting = array(
-                'ProductQuestionsAnswerNOHTML' => 'Text',
-                'ConfigureLabel' => 'Varchar',
-                'ConfigureLink' => 'Varchar'
+            'ProductQuestionsAnswerNOHTML' => 'Text',
+            'ConfigureLabel' => 'Varchar',
+            'ConfigureLink' => 'Varchar'
         );
 
         /**
-         * @return boolean
+         * @return bool
          */ 
         function AllQuestionsAnswered(){
                 if($answers = $this->owner->ProductQuestionsAnswers()) {
-                        foreach($answers as $productQuestion) {
-                                if(!$productQuestion->Answer) {
-                                        return false;
-                                }
+                    foreach($answers as $productQuestion) {
+                        if(!$productQuestion->Answer) {
+                            return false;
                         }
+                    }
                 }
                 return true;
         }
 
         /**
-         * @return boolean
+         * @return bool
          */ 
         function AllRequiredQuestionsAnswered(){
-                if($answers = $this->owner->ProductQuestionsAnswers()) {
-                        foreach($answers as $productQuestion) {
-                                if(!$productQuestion->Answer && $productQuestion->AnswerRequired) {
-                                        return false;
-                                }
+            if($answers = $this->owner->ProductQuestionsAnswers()) {
+                foreach($answers as $productQuestion) {
+                    if($productQuestion->AnswerRequired) {
+                        if( ! $productQuestion->Answer) {
+                            return false;
                         }
+                    }
                 }
+            }
+            return true;
         }
+        
         /**
          * casted variable
          * @return String
@@ -57,11 +61,22 @@ class ProductQuestion_OrderItemExtension extends DataExtension {
 
         /**
          * can the order item be configured
-         * @return Boolean
+         * @return bool
          */
         public function canConfigure(){
                 if($this->owner->Order()->IsSubmitted()) {
-                        return false;
+                    return false;
+                }
+                return true;
+        }
+
+        /**
+         * can the order item be configured
+         * @return bool
+         */
+        public function HasRequiredQuestions(){
+                if($this->owner->AllRequiredQuestionsAnswered()) {
+                    return false;
                 }
                 return true;
         }
@@ -273,11 +288,11 @@ class ProductQuestion_OrderItemExtension extends DataExtension {
                                         }
                                         //$form->addErrorMessage("ProductQuestions", $message, $type);
                                 }
-                                $this->owner->ProductQuestionsAnswer = $this->owner->renderWith("ProductQuestionsAnswers");
+                                $this->owner->ProductQuestionsAnswer = $this->owner->renderWith("ProductQuestionsAnswers")->getValue();
                         }
                         $this->owner->JSONAnswers = json_encode($answers);
                         if($write) {
-                                $this->owner->write();
+                            $this->owner->write();
                         }
                 }
         }

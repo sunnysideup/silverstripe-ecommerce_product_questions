@@ -326,7 +326,7 @@ class ProductQuestion extends DataObject {
      */
     public function getFieldForProduct($product, $value = null){
         //switch from variation to product ...
-        if(($product instanceof ProductVariation) {
+        if($product instanceof ProductVariation) {
             $product = $product->getParent();
         }
         if($this->Options) {

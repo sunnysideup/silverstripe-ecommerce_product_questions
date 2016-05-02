@@ -176,7 +176,7 @@ class ProductQuestion extends DataObject {
         $productFieldTitle = _t("ProductQuestion.PRODUCTS", "Products showing this question");
         if($this->ApplyToAllProducts) {
             $productField = new HiddenField("Products");
-                        
+
         }
         elseif(Product::get()->count() < $this->Config()->get("max_products_for_checkbox_set_field")) {
             $productField = new CheckboxSetField("Products", $productFieldTitle, Product::get()->map("ID", "FullName")->toArray());
@@ -326,7 +326,7 @@ class ProductQuestion extends DataObject {
      */
     public function getFieldForProduct($product, $value = null){
         //switch from variation to product ...
-        $product = $product->Product();
+        $product = $product->getProduct();
         if($this->Options) {
             //if HasImages?
             $finalOptions = array();

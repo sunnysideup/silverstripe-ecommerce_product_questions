@@ -326,7 +326,9 @@ class ProductQuestion extends DataObject {
      */
     public function getFieldForProduct($product, $value = null){
         //switch from variation to product ...
-        $product = $product->getProduct();
+        if(($product instanceof ProductVariation) {
+            $product = $product->getParent();
+        }
         if($this->Options) {
             //if HasImages?
             $finalOptions = array();

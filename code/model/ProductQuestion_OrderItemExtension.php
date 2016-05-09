@@ -11,54 +11,55 @@ class ProductQuestion_OrderItemExtension extends DataExtension
         );
 
     private static $casting = array(
-            'ProductQuestionsAnswerNOHTML' => 'Text',
-            'ConfigureLabel' => 'Varchar',
-            'ConfigureLink' => 'Varchar',
-        );
+        'ProductQuestionsAnswerNOHTML' => 'Text',
+        'ConfigureLabel' => 'Varchar',
+        'ConfigureLink' => 'Varchar',
+    );
 
-        /**
-         * @return bool
-         */
-        public function AllQuestionsAnswered()
-        {
-            if ($answers = $this->owner->ProductQuestionsAnswers()) {
-                foreach ($answers as $productQuestion) {
+    /**
+     * @return bool
+     */
+    public function AllQuestionsAnswered()
+    {
+        if ($answers = $this->owner->ProductQuestionsAnswers()) {
+            foreach ($answers as $productQuestion) {
+                if (!$productQuestion->Answer) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @return bool
+     */
+    public function AllRequiredQuestionsAnswered()
+    {
+        if ($answers = $this->owner->ProductQuestionsAnswers()) {
+            foreach ($answers as $productQuestion) {
+                if ($productQuestion->AnswerRequired) {
                     if (!$productQuestion->Answer) {
                         return false;
                     }
                 }
             }
-
-            return true;
         }
 
-        /**
-         * @return bool
-         */
-        public function AllRequiredQuestionsAnswered()
-        {
-            if ($answers = $this->owner->ProductQuestionsAnswers()) {
-                foreach ($answers as $productQuestion) {
-                    if ($productQuestion->AnswerRequired) {
-                        if (!$productQuestion->Answer) {
-                            return false;
-                        }
-                    }
-                }
-            }
+        return true;
+    }
 
-            return true;
-        }
+    /**
+     * casted variable.
+     *
+     * @return string
+     */
+    public function ProductQuestionsAnswerNOHTML()
+    {
+        return $this->owner->getProductQuestionsAnswerNOHTML();
+    }
 
-        /**
-         * casted variable.
-         *
-         * @return string
-         */
-        public function ProductQuestionsAnswerNOHTML()
-        {
-            return $this->owner->getProductQuestionsAnswerNOHTML();
-        }
     public function getProductQuestionsAnswerNOHTML()
     {
         return strip_tags($this->owner->ProductQuestionsAnswer);
@@ -234,9 +235,18 @@ class ProductQuestion_OrderItemExtension extends DataExtension
     }
 
     /**
+     *
      * @return Form
      */
-    public function ProductQuestionsAnswerForm($controller, $name = 'productquestionsanswerselect')
+    function ProductQuestionsAnswerFormInCheckoutPage()
+    {
+        return ModelAsController::controller_for($this->owner->Buyable())->ProductQuestionsAnswerForm($this->owner);
+    }
+
+    /**
+     * @return Form
+     */
+    public function ProductQuestionsAnswerForm($controller = null, $name = 'productquestionsanswerselect')
     {
         $productQuestions = $this->owner->ProductQuestions();
         $buyable = $this->productQuestionBuyable();
@@ -249,9 +259,9 @@ class ProductQuestion_OrderItemExtension extends DataExtension
         if ($productQuestions && $productQuestions->count()) {
             $requiredfields = array();
             $fields = new FieldList(
-                            new HiddenField('OrderItemID', 'OrderItemID', $this->owner->ID),
-                            new HiddenField('BackURL', 'BackURL', $backURL)
-                    );
+                new HiddenField('OrderItemID', 'OrderItemID', $this->owner->ID),
+                new HiddenField('BackURL', 'BackURL', $backURL)
+            );
             $values = array();
             if ($this->owner->JSONAnswers) {
                 $values = json_decode($this->owner->JSONAnswers);
@@ -261,10 +271,10 @@ class ProductQuestion_OrderItemExtension extends DataExtension
                 $fields->push($productQuestion->getFieldForProduct($buyable, $value)); //TODO: perhaps use a dropdown instead (eliminates need to use keyboard)
             }
             $actions = new FieldList(
-                            array(
-                                    new FormAction('addproductquestionsanswer', _t('ProductQuestion.ANSWER_QUESTION', 'Update Selection')),
-                            )
-                    );
+                array(
+                    new FormAction('addproductquestionsanswer', _t('ProductQuestion.ANSWER_QUESTION', 'Update Selection')),
+                )
+            );
             $validator = new RequiredFields($requiredfields);
             $form = new Form($controller, $name, $fields, $actions, $validator);
             Requirements::themedCSS('Cart');

@@ -24,6 +24,7 @@ ProductConfigModelAdmin:
   managed_models:
     - ProductQuestion
 
+
 ---
 Only:
   classexists: 'ProductVariation'
@@ -31,5 +32,3 @@ Only:
 ProductVariation:
   extensions:
     - ProductQuestion_ProductVariationDecorator
-
-

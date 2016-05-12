@@ -6,15 +6,26 @@
 class ProductQuestion_OrderItemExtension extends DataExtension
 {
     private static $db = array(
-            'ProductQuestionsAnswer' => 'HTMLText',
-            'JSONAnswers' => 'Text',
-        );
+        'ProductQuestionsAnswer' => 'HTMLText',
+        'JSONAnswers' => 'Text',
+    );
 
     private static $casting = array(
         'ProductQuestionsAnswerNOHTML' => 'Text',
         'ConfigureLabel' => 'Varchar',
         'ConfigureLink' => 'Varchar',
     );
+
+    public function updateCMSFields(FieldList $fields) {
+        $fields->addFieldsToTab(
+            'Root.Questions',
+            array(
+                ReadOnlyField::create('ProductQuestionsAnswer', _t('ProductQuestions.ANSWERS', 'Answers')),
+                ReadOnlyField::create('JSONAnswers', _t('ProductQuestions.JSON_ANSWERS', 'Answers as JSON')),
+            )
+        );
+        return $fields;
+    }
 
     /**
      * @return bool

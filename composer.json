@@ -1,22 +1,31 @@
 {
-	"name": "sunnysideup/ecommerce_product_questions",
-	"type": "silverstripe-module",
-	"description": "add questions to buyables (e.g. how many metres of fabric would you like) within e-commerce.",
-	"homepage": "http://www.silverstripe-ecommerce.com",
-	"keywords": ["ecommerce", "e-commerce", "shop", "product variation","variation", "silverstripe", "questions", "additional details", "question", "product settings"],
-	"license": "Sunny Side Up (BSD-3-Clause and CUSTOM)",
-	"authors":[
-		{
-			"name": "Nicolaas Francken",
-			"homepage": "https://github.com/sunnysideup",
-			"email" : "modules@sunnysideup.co.nz",
-			"role" : "lead developer"
-		}
-	],
-	"require":{
-		"sunnysideup/ecommerce": "dev-master"
-	},
-	"extra": {
-		"installer-name": "ecommerce_product_questions"
-	}
+    "name": "sunnysideup/ecommerce_product_questions",
+    "type": "silverstripe-module",
+    "description": "add questions to buyables (e.g. how many metres of fabric would you like) within e-commerce.",
+    "keywords": [
+        "ecommerce",
+        "e-commerce",
+        "shop",
+        "product variation",
+        "variation",
+        "silverstripe",
+        "questions",
+        "additional details",
+        "question",
+        "product settings"
+    ],
+    "license": "Sunny Side Up (BSD-3-Clause and CUSTOM)",
+    "authors": [
+        {
+            "name": "Nicolaas Francken",
+            "email": "modules@sunnysideup.co.nz",
+            "role": "lead developer"
+        }
+    ],
+    "require": {
+        "sunnysideup/ecommerce": "dev-master"
+    },
+    "extra": {
+        "installer-name": "ecommerce_product_questions"
+    }
 }

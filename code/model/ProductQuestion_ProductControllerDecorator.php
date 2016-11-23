@@ -8,7 +8,8 @@
  *
  *
  */
-class ProductQuestion_ProductControllerDecorator extends Extension {
+class ProductQuestion_ProductControllerDecorator extends Extension
+{
 
 
     /**
@@ -30,7 +31,8 @@ class ProductQuestion_ProductControllerDecorator extends Extension {
      * renders a form with the product questions
      * @return String (HTML)
      */
-    function productquestionsanswerselect(){
+    public function productquestionsanswerselect()
+    {
         $this->getProductQuestionOrderItem();
         return $this->owner->customise(
             array(
@@ -45,17 +47,17 @@ class ProductQuestion_ProductControllerDecorator extends Extension {
      * @param OrderItem (optional)
      * @return Form
      */
-    function ProductQuestionsAnswerForm($orderItem = null){
+    public function ProductQuestionsAnswerForm($orderItem = null)
+    {
         //the second part (instanceof) is important, because otherwise it becomes a request ...
-        if($orderItem && $orderItem instanceof OrderItem) {
+        if ($orderItem && $orderItem instanceof OrderItem) {
             $this->productQuestionOrderItem = $orderItem;
         } else {
             $this->getProductQuestionOrderItem();
         }
-        if($this->productQuestionOrderItem) {
+        if ($this->productQuestionOrderItem) {
             return $this->productQuestionOrderItem->owner->ProductQuestionsAnswerForm($this->owner, $name = "ProductQuestionsAnswerForm");
-        }
-        else {
+        } else {
             user_error("could not submit...");
         }
     }
@@ -64,12 +66,13 @@ class ProductQuestion_ProductControllerDecorator extends Extension {
      * returns the fields from the form
      * @return FieldSet
      */
-    function ProductQuestionsAnswerFormFields(){
+    public function ProductQuestionsAnswerFormFields()
+    {
         $fieldSet = new FieldList();
         $product = $this->owner->dataRecord;
         $productQuestions = $product->ApplicableProductQuestions();
-        if($productQuestions) {
-            foreach($productQuestions as $productQuestion) {
+        if ($productQuestions) {
+            foreach ($productQuestions as $productQuestion) {
                 $fieldSet->push($productQuestion->getFieldForProduct($product));
             }
         }
@@ -85,19 +88,19 @@ class ProductQuestion_ProductControllerDecorator extends Extension {
      * @param Array $data - form data
      * @param Form form - data from the form
      */
-    function addproductquestionsanswer($data, $form){
+    public function addproductquestionsanswer($data, $form)
+    {
         $this->getProductQuestionOrderItem();
         $data = Convert::raw2sql($data);
-        if($this->productQuestionOrderItem) {
+        if ($this->productQuestionOrderItem) {
             $this->productQuestionOrderItem->updateOrderItemWithProductAnswers(
                 $answers = $data["ProductQuestions"],
                 $write = true
             );
         }
-        if(isset($data["BackURL"]) && $data["BackURL"]){
+        if (isset($data["BackURL"]) && $data["BackURL"]) {
             $this->owner->redirect($data["BackURL"]);
-        }
-        else {
+        } else {
             $this->owner->redirectBack();
         }
     }
@@ -106,21 +109,21 @@ class ProductQuestion_ProductControllerDecorator extends Extension {
      * retrieves order item from post / get variables.
      * @return OrderItem | Null
      */
-    protected function getProductQuestionOrderItem(){
+    protected function getProductQuestionOrderItem()
+    {
         $id = intval($this->owner->request->param("ID"));
-        if(!$id) {
+        if (!$id) {
             $id = intval($this->owner->request->postVar("OrderItemID"));
         }
-        if(!$id) {
+        if (!$id) {
             $id = intval($this->owner->request->getVar("OrderItemID"));
         }
-        if($id) {
+        if ($id) {
             $this->productQuestionOrderItem = OrderItem::get()->byID($id);
         }
-        if( ! $this->productQuestionOrderItem) {
+        if (! $this->productQuestionOrderItem) {
             user_error("NO this->productQuestionOrderItem specified");
         }
         return $this->productQuestionOrderItem;
     }
-
 }

@@ -16,7 +16,8 @@ class ProductQuestion_OrderItemExtension extends DataExtension
         'ConfigureLink' => 'Varchar',
     );
 
-    public function updateCMSFields(FieldList $fields) {
+    public function updateCMSFields(FieldList $fields)
+    {
         $fields->addFieldsToTab(
             'Root.Questions',
             array(
@@ -249,7 +250,7 @@ class ProductQuestion_OrderItemExtension extends DataExtension
      *
      * @return Form
      */
-    function ProductQuestionsAnswerFormInCheckoutPage()
+    public function ProductQuestionsAnswerFormInCheckoutPage()
     {
         return ModelAsController::controller_for($this->owner->Buyable())->ProductQuestionsAnswerForm($this->owner);
     }

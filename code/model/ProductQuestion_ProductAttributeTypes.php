@@ -8,20 +8,20 @@
  *
  *
  */
-class ProductQuestion_ProductAttributeTypes extends DataExtension {
+class ProductQuestion_ProductAttributeTypes extends DataExtension
+{
+    private static $many_many = array(
+        'ProductQuestions' => 'ProductQuestion'
+    );
 
-	private static $many_many = array(
-		'ProductQuestions' => 'ProductQuestion'
-	);
+    public function updateCMSFields(FieldList $fields)
+    {
+    }
 
-	function updateCMSFields(FieldList $fields) {
-	}
-
-	public function onAfterWrite(){
-		foreach($this->ProductQuestions() as $question) {
-			$question->write();
-		}
-	}
-
+    public function onAfterWrite()
+    {
+        foreach ($this->ProductQuestions() as $question) {
+            $question->write();
+        }
+    }
 }
-

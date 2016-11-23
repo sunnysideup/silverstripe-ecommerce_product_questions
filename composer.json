@@ -3,12 +3,14 @@
     "type": "silverstripe-module",
     "description": "add questions to buyables (e.g. how many metres of fabric would you like) within e-commerce.",
     "keywords": [
+        "Silverstripe-CMS",
+        "CMS",
+        "Silverstripe",
         "ecommerce",
         "e-commerce",
         "shop",
         "product variation",
         "variation",
-        "silverstripe",
         "questions",
         "additional details",
         "question",
@@ -23,7 +25,9 @@
         }
     ],
     "require": {
-        "sunnysideup/ecommerce": "dev-master"
+        "sunnysideup/ecommerce": "*",
+        "silverstripe/framework": "~3.1",
+        "silverstripe/cms": "~3.1"
     },
     "extra": {
         "installer-name": "ecommerce_product_questions"

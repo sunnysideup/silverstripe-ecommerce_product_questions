@@ -6,7 +6,8 @@
  * @package ecommerce
  * @subpackage ProductQuestion
  */
-class ProductQuestion extends DataObject {
+class ProductQuestion extends DataObject
+{
 
     /**
      * Standard SS variable.
@@ -116,17 +117,24 @@ class ProductQuestion extends DataObject {
      * Standard SS variable.
      */
     private static $singular_name = "Product Question";
-        function i18n_singular_name() { return _t("ProductQuestion.PRODUCT_QUESTION", "Product Question");}
+    public function i18n_singular_name()
+    {
+        return _t("ProductQuestion.PRODUCT_QUESTION", "Product Question");
+    }
 
     /**
      * Standard SS variable.
      */
     private static $plural_name = "Product Variations";
-        function i18n_plural_name() { return _t("ProductQuestion.PRODUCT_QUESTIONS", "Product Questions");}
-        public static function get_plural_name(){
-            $obj = Singleton("ProductQuestion");
-            return $obj->i18n_plural_name();
-        }
+    public function i18n_plural_name()
+    {
+        return _t("ProductQuestion.PRODUCT_QUESTIONS", "Product Questions");
+    }
+    public static function get_plural_name()
+    {
+        $obj = Singleton("ProductQuestion");
+        return $obj->i18n_plural_name();
+    }
 
     /**
      * turns an option into potential file names
@@ -136,7 +144,8 @@ class ProductQuestion extends DataObject {
      * @param String $option
      * @return Array
      */
-    public static function create_file_array_from_option($option) {
+    public static function create_file_array_from_option($option)
+    {
         $option = str_replace(' ', "-", trim($option));
         $option = preg_replace("/[^a-z0-9_-]+/i", "", $option);
         $imageOptions = array(
@@ -156,11 +165,12 @@ class ProductQuestion extends DataObject {
      * Standard SS method
      * @return FieldSet
      */
-    function getCMSFields() {
+    public function getCMSFields()
+    {
         $fields = parent::getCMSFields();
         $fields->addFieldToTab("Root.Images", new CheckboxField("HasImages", _t("ProductQuestion.HAS_IMAGES", "This question makes use of images")));
         $fields->addFieldToTab("Root.Products", new CheckboxField("ApplyToAllProducts", _t("ProductQuestion.APPLY_TO_ALL_PRODUCTS", "Apply to all products ...")));
-        if(!$this->HasImages) {
+        if (!$this->HasImages) {
             $fields->addFieldToTab(
                 "Root.DefaultFormField",
                 new OptionSetField(
@@ -169,19 +179,15 @@ class ProductQuestion extends DataObject {
                     $this->Options ? $this->Config()->get("available_form_fields_list") : $this->Config()->get("available_form_fields_free")
                 )
             );
-        }
-        else {
+        } else {
             $fields->removeFieldFromTab("Root.Main", "DefaultFormField");
         }
         $productFieldTitle = _t("ProductQuestion.PRODUCTS", "Products showing this question");
-        if($this->ApplyToAllProducts) {
+        if ($this->ApplyToAllProducts) {
             $productField = new HiddenField("Products");
-
-        }
-        elseif(Product::get()->count() < $this->Config()->get("max_products_for_checkbox_set_field")) {
+        } elseif (Product::get()->count() < $this->Config()->get("max_products_for_checkbox_set_field")) {
             $productField = new CheckboxSetField("Products", $productFieldTitle, Product::get()->map("ID", "FullName")->toArray());
-        }
-        else {
+        } else {
             $productField = new GridField(
                 'Products',
                 _t("ProductQuestion.PRODUCTS", "Products showing this question"),
@@ -190,8 +196,8 @@ class ProductQuestion extends DataObject {
             );
         }
         $fields->addFieldToTab("Root.Products", $productField);
-        if(!$this->ApplyToAllProducts) {
-            foreach($this->Products() as $product) {
+        if (!$this->ApplyToAllProducts) {
+            foreach ($this->Products() as $product) {
                 $fields->addFieldToTab(
                     "Root.Products",
                     new LiteralField(
@@ -201,9 +207,9 @@ class ProductQuestion extends DataObject {
                 );
             }
         }
-        if($this->HasImages) {
+        if ($this->HasImages) {
             $folders = Folder::get();
-            if($folders->count()) {
+            if ($folders->count()) {
                 $folderMap = $folders->map("ID", "Title")->toArray();
                 $folders = null;
                 $fields->removeFieldFromTab("Root.Main", "Folder");
@@ -221,35 +227,35 @@ class ProductQuestion extends DataObject {
                         the following filenames would not work: 'Red.png', 'red1.jpg', 'RED.gif', etc...
                     </strong>");
                 $folder = Folder::get()->byID($this->FolderID);
-                if($folder) {
+                if ($folder) {
                     $treeDropdownFieldRightTitle .= "
                         <br /><a href=\"admin/assets/show/".$folder->ID."/\">"._t("ProductQuestion.OPEN", "Open")." ".$folder->Title."</a>
                         <br /><a href=\"admin/assets/add/?ID".$folder->ID."/\">"._t("ProductQuestion.ADD_IMAGES_TO", "Add images to")." ".$folder->Title."</a>";
                 }
                 $treeDropdownField->setRightTitle($treeDropdownFieldRightTitle);
             }
-            if($this->FolderID) {
+            if ($this->FolderID) {
                 $imagesInFolder = Image::get()->filter(array("ParentID" => $this->FolderID));
-                if($imagesInFolder->count()) {
+                if ($imagesInFolder->count()) {
                     $imagesInFolderArray = $imagesInFolder->map("ID", "Name")->toArray();
                     $options = explode(",", $this->Options);
                     $imagesInFolderField = new ReadonlyField("ImagesInFolder", _t("ProductQuestion.NO_IMAGES", "Images in folder"), implode("<br />", $imagesInFolderArray));
                     $imagesInFolderField->dontEscape = true;
                     $fields->addFieldToTab("Root.Images", $imagesInFolderField);
                     //matches
-                    if($this->exists()) {
+                    if ($this->exists()) {
                         $matchesInFolderArray = array();
                         $nonMatchesInFolderArray = array();
                         $options = explode(",", $this->Options);
-                        if(count($options)) {
-                            foreach($options as $option) {
+                        if (count($options)) {
+                            foreach ($options as $option) {
                                 $fileNameArray = self::create_file_array_from_option($option);
-                                foreach($fileNameArray as $fileName) {
-                                    if(in_array($fileName, $imagesInFolderArray)) {
+                                foreach ($fileNameArray as $fileName) {
+                                    if (in_array($fileName, $imagesInFolderArray)) {
                                         $matchesInFolderArray[$option] = "<strong>".$option."</strong>: ".$fileName;
                                     }
                                 }
-                                if(!isset($matchesInFolderArray[$option])) {
+                                if (!isset($matchesInFolderArray[$option])) {
                                     $nonMatchesInFolderArray[$option] = "<strong>".$option." - add one these files: </strong>".implode(",", $fileNameArray);
                                 }
                             }
@@ -261,17 +267,15 @@ class ProductQuestion extends DataObject {
                         $nonMatchesInFolderField->dontEscape = true;
                         $fields->addFieldToTab("Root.Images", $nonMatchesInFolderField);
                     }
-                }
-                else {
+                } else {
                     $imagesInFolderField = new ReadonlyField("ImagesInFolder", "Images in folder", _t("ProductQuestion.NO_IMAGES", "There are no images in this folder"));
                     $fields->addFieldToTab("Root.Main", $imagesInFolderField);
                 }
             }
-        }
-        else {
+        } else {
             $fields->removeByName("Folder");
         }
-        if($this->Products()->count()) {
+        if ($this->Products()->count()) {
             $randomProduct = $this->Products()->First();
             $fields->addFieldToTab("Root.Example", $this->getFieldForProduct($randomProduct));
         }
@@ -280,7 +284,7 @@ class ProductQuestion extends DataObject {
             "Tick the box to link each option to an image (e.g. useful if you have colour swatches).
                 Once ticked and the question is saved you will be able to select a folder from where to select the images.");
         $field = $fields->dataFieldByName("HasImages");
-        if($field) {
+        if ($field) {
             $field->setDescription($folderExplanation);
         }
 
@@ -306,8 +310,12 @@ class ProductQuestion extends DataObject {
      * casted variable
      * @return String
      */
-    public function FullName(){return $this->getFullName();}
-    public function getFullName(){
+    public function FullName()
+    {
+        return $this->getFullName();
+    }
+    public function getFullName()
+    {
         return $this->Question." (".$this->InternalCode.")";
     }
 
@@ -315,8 +323,12 @@ class ProductQuestion extends DataObject {
      * casted variable
      * @return String
      */
-    public function Title(){return $this->getTitle();}
-    public function getTitle(){
+    public function Title()
+    {
+        return $this->getTitle();
+    }
+    public function getTitle()
+    {
         return $this->Question." (".$this->InternalCode.")";
     }
 
@@ -324,41 +336,41 @@ class ProductQuestion extends DataObject {
      *
      * @return FormField
      */
-    public function getFieldForProduct($product, $value = null){
+    public function getFieldForProduct($product, $value = null)
+    {
         //switch from variation to product ...
-        if($product instanceof ProductVariation) {
+        if ($product instanceof ProductVariation) {
             $product = $product->getParent();
         }
-        if($this->Options) {
+        if ($this->Options) {
             //if HasImages?
             $finalOptions = array();
             $optionArray = explode(",", $this->Options);
-            foreach($optionArray as $option) {
+            foreach ($optionArray as $option) {
                 $option = trim($option);
                 $finalOptions[Convert::raw2htmlatt($option)] = $option;
             }
-            if($this->HasImages) {
+            if ($this->HasImages) {
                 return new ProductQuestionImageSelectorField($this->getFieldForProductName($product), $this->Question, $finalOptions, $value, $this->FolderID);
-            }
-            else {
+            } else {
                 $formFieldClass = $this->DefaultFormField;
-                if(!$formFieldClass) {
+                if (!$formFieldClass) {
                     $formFieldClass = "DropdownField";
                 }
                 $finalOptions = array("" => _t("ProductQuestion.PLEASE_SELECT", " -- please select --")) + $finalOptions;
                 return $formFieldClass::create($this->getFieldForProductName($product), $this->Question, $finalOptions, $value);
             }
-        }
-        else {
+        } else {
             $formFieldClass = $this->DefaultFormField;
-            if(!$formFieldClass) {
+            if (!$formFieldClass) {
                 $formFieldClassd = "TextField";
             }
             return $formFieldClass::create($this->getFieldForProductName($product), $this->Question, $value);
         }
     }
 
-    public function getFieldForProductName(Product $product){
+    public function getFieldForProductName(Product $product)
+    {
         return "ProductQuestions[".$this->ID."]";
     }
 
@@ -366,33 +378,34 @@ class ProductQuestion extends DataObject {
      *
      * making sure all the data is clean
      */
-    function onBeforeWrite(){
+    public function onBeforeWrite()
+    {
         parent::onBeforeWrite();
-        if(!$this->InternalCode) {
+        if (!$this->InternalCode) {
             $this->InternalCode = $this->Label;
         }
-        if(!$this->HasImages) {
+        if (!$this->HasImages) {
             $this->FolderID = 0;
         }
-        if($this->Options) {
+        if ($this->Options) {
             $optionsForFields = $this->Config()->get("available_form_fields_list");
-            if(!isset($optionsForFields[$this->DefaultFormField])) {
+            if (!isset($optionsForFields[$this->DefaultFormField])) {
                 //get the first one if none is set.
                 $this->DefaultFormField = key($optionsForFields);
             }
-        }
-        else {
+        } else {
             $optionsForFields = $this->Config()->get("available_form_fields_free");
-            if(!isset($optionsForFields[$this->DefaultFormField])) {
+            if (!isset($optionsForFields[$this->DefaultFormField])) {
                 //get the first one if none is set.
                 $this->DefaultFormField = key($optionsForFields);
             }
         }
     }
 
-    function onAfterWrite(){
+    public function onAfterWrite()
+    {
         parent::onAfterWrite();
-        if($this->ApplyToAllProducts) {
+        if ($this->ApplyToAllProducts) {
             $this->Products()->removeAll();
         }
     }
@@ -402,13 +415,12 @@ class ProductQuestion extends DataObject {
      * @param String | Null $action - e.g. edit
      * @return String
      */
-    public function CMSEditLink($action = null) {
+    public function CMSEditLink($action = null)
+    {
         return Controller::join_links(
             Director::baseURL(),
             "/admin/product-config/".$this->ClassName."/EditForm/field/".$this->ClassName."/item/".$this->ID."/edit",
             $action
         );
     }
-
 }
-

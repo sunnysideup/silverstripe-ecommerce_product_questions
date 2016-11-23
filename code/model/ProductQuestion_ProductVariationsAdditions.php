@@ -8,21 +8,21 @@
  *
  *
  */
-class ProductQuestion_ProductVariationsAdditions extends DataExtension {
+class ProductQuestion_ProductVariationsAdditions extends DataExtension
+{
+    private static $many_many = array(
+        'ProductAttributeTypes' => 'ProductAttributeType',
+        'ProductAttributeValues' => 'ProductAttributeValue',
+        'ProductVariations' => 'ProductVariation'
+    );
 
-	private static $many_many = array(
-		'ProductAttributeTypes' => 'ProductAttributeType',
-		'ProductAttributeValues' => 'ProductAttributeValue',
-		'ProductVariations' => 'ProductVariation'
-	);
+    public function updateCMSFields(FieldList $fields)
+    {
+    }
 
-	function updateCMSFields(FieldList $fields) {
-	}
-
-	public function onAfterWrite(){
-		//go through types to add to variations
-		//go through values to add to variations
-	}
-
+    public function onAfterWrite()
+    {
+        //go through types to add to variations
+        //go through values to add to variations
+    }
 }
-

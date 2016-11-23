@@ -8,8 +8,8 @@
  *
  * @author nicolaas <modules@sunnysideup.co.nz>
  */
-class ProductQuestion_ProductVariationDecorator extends DataExtension {
-
+class ProductQuestion_ProductVariationDecorator extends DataExtension
+{
     private static $db = array("ConfigureLabel" => 'Varchar(50)');
 
     private static $many_many = array(
@@ -17,12 +17,13 @@ class ProductQuestion_ProductVariationDecorator extends DataExtension {
         "AdditionalProductQuestions" => 'ProductQuestion'
     );
 
-    function updateCMSFields(FieldList $fields) {
+    public function updateCMSFields(FieldList $fields)
+    {
         parent::updateCMSFields($fields);
-        if(ProductQuestion::get()->count()) {
+        if (ProductQuestion::get()->count()) {
             $productQuestionsDefault = $this->owner->Product()->ApplicableProductQuestions();
             $productQuestionsDefaultArray = array(0 => 0);
-            if($productQuestionsDefault && $productQuestionsDefault->count()){
+            if ($productQuestionsDefault && $productQuestionsDefault->count()) {
                 $productQuestionsDefaultArray = $productQuestionsDefault->map("ID", "FullName")->toArray();
                 $fields->addFieldToTab(
                     "Root.Questions",
@@ -33,7 +34,7 @@ class ProductQuestion_ProductVariationDecorator extends DataExtension {
                 );
             }
             $productQuestionsAdditional = ProductQuestion::get()->exclude(array("ID" => array_flip($productQuestionsDefaultArray)));
-            if($productQuestionsAdditional->count()){
+            if ($productQuestionsAdditional->count()) {
                 $productQuestionsAdditionalArray = $productQuestionsAdditional->map("ID", "FullName")->toArray();
                 $fields->addFieldToTab(
                     "Root.Questions",
@@ -51,11 +52,12 @@ class ProductQuestion_ProductVariationDecorator extends DataExtension {
      * returns the fields from the form
      * @return FieldSet
      */
-    function ProductQuestionsAnswerFormFields(){
+    public function ProductQuestionsAnswerFormFields()
+    {
         $fieldSet = new FieldList();
         $productQuestions = $this->owner->ApplicableProductQuestions();
-        if($productQuestions && $productQuestions->count()) {
-            foreach($productQuestions as $productQuestion) {
+        if ($productQuestions && $productQuestions->count()) {
+            foreach ($productQuestions as $productQuestion) {
                 $fieldSet->push($productQuestion->getFieldForProduct($this));
             }
         }
@@ -67,13 +69,13 @@ class ProductQuestion_ProductVariationDecorator extends DataExtension {
      * for answering the Product Questions.
      * @return String
      */
-    public function CustomConfigureLabel(){
-        if($this->owner->HasProductQuestions()) {
-            if($this->owner->ConfigureLabel) {
+    public function CustomConfigureLabel()
+    {
+        if ($this->owner->HasProductQuestions()) {
+            if ($this->owner->ConfigureLabel) {
                 return $this->owner->ConfigureLabel;
-            }
-            elseif($product = $this->owner->Product()) {
-                if($label = $product->owner->CustomConfigureLabel()) {
+            } elseif ($product = $this->owner->Product()) {
+                if ($label = $product->owner->CustomConfigureLabel()) {
                     return $label;
                 }
             }
@@ -85,7 +87,8 @@ class ProductQuestion_ProductVariationDecorator extends DataExtension {
      *
      * @return String
      */
-    function ProductQuestionsAnswerFormLink($id = 0){
+    public function ProductQuestionsAnswerFormLink($id = 0)
+    {
         return $this->owner->Link("productquestionsanswerselect")."/".$id."/?BackURL=".urlencode(Controller::curr()->Link());
     }
 
@@ -99,7 +102,8 @@ class ProductQuestion_ProductVariationDecorator extends DataExtension {
      *
      * @alais for ProductQuestions
      */
-    function ApplicableProductQuestions() {
+    public function ApplicableProductQuestions()
+    {
         return $this->ProductQuestions();
     }
 
@@ -107,27 +111,28 @@ class ProductQuestion_ProductVariationDecorator extends DataExtension {
      * returns the applicable Product Questions
      * @return DataList
      */
-    function ProductQuestions(){
-        if(!isset(self::$_product_questions_cache[$this->owner->ID])) {
+    public function ProductQuestions()
+    {
+        if (!isset(self::$_product_questions_cache[$this->owner->ID])) {
             $product = $this->owner->Product();
             $productQuestions = $product->ApplicableProductQuestions();
             $productQuestionsArray = array(0 => 0);
-            if($productQuestions && $productQuestions->count()) {
+            if ($productQuestions && $productQuestions->count()) {
                 $productQuestionsArray = $productQuestions->map("ID", "ID")->toArray();
             }
             $ignoreProductQuestions = $this->owner->IgnoreProductQuestions();
-            if($ignoreProductQuestions && $ignoreProductQuestions->count()) {
-                foreach($ignoreProductQuestions as $ignoreProductQuestion) {
+            if ($ignoreProductQuestions && $ignoreProductQuestions->count()) {
+                foreach ($ignoreProductQuestions as $ignoreProductQuestion) {
                     unset($productQuestionsArray[$ignoreProductQuestion->ID]);
                 }
             }
             $additionalProductQuestions = $this->owner->AdditionalProductQuestions();
-            if($additionalProductQuestions && $additionalProductQuestions->count()) {
-                foreach($additionalProductQuestions as $additionalProductQuestion) {
+            if ($additionalProductQuestions && $additionalProductQuestions->count()) {
+                foreach ($additionalProductQuestions as $additionalProductQuestion) {
                     $productQuestionsArray[$additionalProductQuestion->ID] = $additionalProductQuestion->ID;
                 }
             }
-            if(!count($productQuestionsArray)) {
+            if (!count($productQuestionsArray)) {
                 $productQuestionsArray = array(0 => 0);
             }
             self::$_product_questions_cache[$this->owner->ID] = ProductQuestion::get()->filter(array("ID" => $productQuestionsArray));
@@ -139,13 +144,13 @@ class ProductQuestion_ProductVariationDecorator extends DataExtension {
      * Does this buyable have product questions?
      * @return Boolean
      */
-    public function HasProductQuestions(){
-        if($applicable = $this->owner->ApplicableProductQuestions()) {
-            if($applicable->count()) {
+    public function HasProductQuestions()
+    {
+        if ($applicable = $this->owner->ApplicableProductQuestions()) {
+            if ($applicable->count()) {
                 return true;
             }
         }
         return false;
     }
-
 }

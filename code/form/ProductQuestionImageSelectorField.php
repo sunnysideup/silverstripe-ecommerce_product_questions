@@ -82,9 +82,9 @@ class ProductQuestionImageSelectorField extends OptionsetField
             $id = 0;
         }
         return "
-			<ul id=\"$id\" class=\"optionset {$this->extraClass()}\">
-			\n$options
-			</ul>\n";
+            <ul id=\"$id\" class=\"optionset {$this->extraClass()}\">
+            \n$options
+            </ul>\n";
     }
 
     protected function createObjects()
@@ -93,7 +93,10 @@ class ProductQuestionImageSelectorField extends OptionsetField
         if ($this->options && is_array($this->options) && count($this->options)) {
             foreach ($this->options as $option) {
                 $imageOptions = ProductQuestion::create_file_array_from_option($option);
-                $image = Image::get()->filter(array("ParentID" => $this->folderID, "Name" => $imageOptions))->First();
+                $image = DataObject::get_one(
+                    'Image',
+                    array("ParentID" => $this->folderID, "Name" => $imageOptions)
+                );
                 if ($image) {
                     $image->Key = $option;
                     $image->Value = $option;

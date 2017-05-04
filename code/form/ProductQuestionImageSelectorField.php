@@ -95,7 +95,8 @@ class ProductQuestionImageSelectorField extends OptionsetField
                 $imageOptions = ProductQuestion::create_file_array_from_option($option);
                 $image = DataObject::get_one(
                     'Image',
-                    array("ParentID" => $this->folderID, "Name" => $imageOptions)
+                    array("ParentID" => $this->folderID, "Name" => $imageOptions),
+                    $cacheDataObjectGetOne = false
                 );
                 if ($image) {
                     $image->Key = $option;

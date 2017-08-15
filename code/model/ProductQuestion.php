@@ -74,7 +74,10 @@ class ProductQuestion extends DataObject
     /**
      * Standard SS variable.
      */
-    private static $default_sort = "\"Question\" ASC";
+    private static $default_sort = [
+        'Question' =>  'ASC',
+        'ID' => 'ASC'
+    ];
 
     /**
      * Standard SS variable.

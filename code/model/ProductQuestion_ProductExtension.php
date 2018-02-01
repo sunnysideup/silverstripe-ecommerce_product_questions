@@ -19,7 +19,8 @@ class ProductQuestion_ProductDecorator extends DataExtension
         $productQuestions = ProductQuestion::get();
         if ($productQuestions->count()) {
             $fields->addFieldToTab("Root.Questions", new TextField("ConfigureLabel", _t("ProductQuestion.CONFIGURE_LINK_LABEL", "Configure link label")));
-            $fields->addFieldToTab("Root.Questions",
+            $fields->addFieldToTab(
+                "Root.Questions",
                 $gridField = new CheckboxSetField(
                     'ProductQuestions',
                     _t("ProductQuestion.PLURAL_NAME", "Product Questions"),

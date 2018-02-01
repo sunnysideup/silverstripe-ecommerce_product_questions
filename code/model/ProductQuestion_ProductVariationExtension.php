@@ -27,7 +27,8 @@ class ProductQuestion_ProductVariationDecorator extends DataExtension
                 $productQuestionsDefaultArray = $productQuestionsDefault->map("ID", "FullName")->toArray();
                 $fields->addFieldToTab(
                     "Root.Questions",
-                    new CheckboxSetField("IgnoreProductQuestions",
+                    new CheckboxSetField(
+                        "IgnoreProductQuestions",
                         _t("ProductQuestions.IGNORE_QUESTIONS", "Ignore Questions for this variation"),
                         $productQuestionsDefaultArray
                     )

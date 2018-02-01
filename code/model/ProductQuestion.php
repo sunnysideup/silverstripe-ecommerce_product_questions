@@ -228,7 +228,8 @@ class ProductQuestion extends DataObject
                         The images need to have the exact same file name as the options listed.
                         For example, if one of your options is 'red' then there should be a file in your folder called 'red.png' or 'red.jpg' or 'red.gif',
                         the following filenames would not work: 'Red.png', 'red1.jpg', 'RED.gif', etc...
-                    </strong>");
+                    </strong>"
+                );
                 $folder = Folder::get()->byID($this->FolderID);
                 if ($folder) {
                     $treeDropdownFieldRightTitle .= "
@@ -285,7 +286,8 @@ class ProductQuestion extends DataObject
         $folderExplanation = _t(
             "ProductQuestion.FOLDER_EXPLANATION",
             "Tick the box to link each option to an image (e.g. useful if you have colour swatches).
-                Once ticked and the question is saved you will be able to select a folder from where to select the images.");
+                Once ticked and the question is saved you will be able to select a folder from where to select the images."
+        );
         $field = $fields->dataFieldByName("HasImages");
         if ($field) {
             $field->setDescription($folderExplanation);

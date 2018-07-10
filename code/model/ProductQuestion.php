@@ -128,7 +128,7 @@ class ProductQuestion extends DataObject
     /**
      * Standard SS variable.
      */
-    private static $plural_name = "Product Variations";
+    private static $plural_name = "Product Questions";
     public function i18n_plural_name()
     {
         return _t("ProductQuestion.PRODUCT_QUESTIONS", "Product Questions");
